@@ -88,7 +88,7 @@ function HomePage() {
                 </Link>
               </div>
 
-              {/* Live Metric Counters */}
+              {/* Live Metric Counter */}
               <div className="hero-stats-row">
                 <div className="stat-item">
                   <h4>220 GSM</h4>
