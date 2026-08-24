@@ -1,0 +1,262 @@
+// =============================================================
+//  ELIX — Prisma Schema (PostgreSQL)
+//  Database: PostgreSQL (remote via VPS public IP)
+// =============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────
+//  ENUMS
+// ─────────────────────────────────────────
+
+enum Role {
+  customer
+  admin
+  owner
+}
+
+enum Provider {
+  email
+  google
+  apple
+  github
+  system
+}
+
+enum Size {
+  S
+  M
+  L
+  XL
+  XXL
+}
+
+enum DiscountType {
+  percentage
+  fixed
+}
+
+enum OrderStatus {
+  Pending
+  Confirmed
+  Processing
+  Shipped
+  Delivered
+  Cancelled
+}
+
+// ─────────────────────────────────────────
+//  USER
+// ─────────────────────────────────────────
+
+model User {
+  id        String   @id @default(cuid())
+  realName  String
+  username  String   @unique
+  email     String   @unique
+  password  String?  // null for OAuth-only accounts
+  role      Role     @default(customer)
+  provider  Provider @default(email)
+  avatar    String?
+  points    Int      @default(200)
+  isDemo    Boolean  @default(false)
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  addresses Address[]
+  orders    Order[]
+  reviews   Review[]
+  wishlist  WishlistItem[]
+
+  @@index([email])
+  @@index([username])
+}
+
+// ─────────────────────────────────────────
+//  ADDRESS  (belongs to User)
+// ─────────────────────────────────────────
+
+model Address {
+  id         String   @id @default(cuid())
+  userId     String
+  label      String?
+  street     String?
+  city       String?
+  postalCode String?
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─────────────────────────────────────────
+//  PRODUCT
+// ─────────────────────────────────────────
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String
+  // Store page primary inputs ↓
+  imageUrl    String   // primary / hero image URL
+  price       Float
+  priority    Int      @default(0) // display order in store (lower = higher priority)
+  // Optional / extended fields ↓
+  category    String   @default("Uncategorized")
+  isFeatured  Boolean  @default(false)
+  isBestSeller Boolean @default(false)
+  rating      Float    @default(0)
+  numReviews  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  images     ProductImage[]   // additional gallery images
+  sizes      ProductSize[]    // size + stock pairs
+  orderItems OrderItem[]
+  reviews    Review[]
+  wishlist   WishlistItem[]
+
+  @@index([slug])
+  @@index([priority])
+  @@index([category])
+}
+
+// Extra gallery images (separate from imageUrl hero)
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  url       String
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+// Size + stock per product
+model ProductSize {
+  id        String @id @default(cuid())
+  productId String
+  size      Size
+  stock     Int    @default(0)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, size])
+}
+
+// ─────────────────────────────────────────
+//  WISHLIST  (User ↔ Product join)
+// ─────────────────────────────────────────
+
+model WishlistItem {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+}
+
+// ─────────────────────────────────────────
+//  DISCOUNT
+// ─────────────────────────────────────────
+
+model Discount {
+  id          String       @id @default(cuid())
+  code        String       @unique
+  description String?
+  type        DiscountType
+  value       Float
+  expiryDate  DateTime
+  usageLimit  Int          @default(0)  // 0 = unlimited
+  usedCount   Int          @default(0)
+  active      Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+// ─────────────────────────────────────────
+//  ORDER
+// ─────────────────────────────────────────
+
+model Order {
+  id             String      @id @default(cuid())
+  userId         String
+  paymentMethod  String      @default("Cash on Delivery")
+  itemsPrice     Float
+  deliveryFee    Float
+  discountAmount Float       @default(0)
+  totalPrice     Float
+  status         OrderStatus @default(Pending)
+  isPaid         Boolean     @default(false)
+  paidAt         DateTime?
+  deliveredAt    DateTime?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  // Relations
+  user            User            @relation(fields: [userId], references: [id], onDelete: Restrict)
+  orderItems      OrderItem[]
+  shippingAddress ShippingAddress?
+
+  @@index([userId])
+  @@index([status])
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  productId String
+  name      String
+  image     String
+  price     Float
+  quantity  Int
+  size      Size?
+  color     String?
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+}
+
+model ShippingAddress {
+  id         String @id @default(cuid())
+  orderId    String @unique
+  fullName   String
+  phone      String
+  street     String
+  city       String
+  postalCode String
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+// ─────────────────────────────────────────
+//  REVIEW
+// ─────────────────────────────────────────
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  rating    Int      // 1–5
+  comment   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId]) // one review per user per product
+  @@index([productId])
+}
