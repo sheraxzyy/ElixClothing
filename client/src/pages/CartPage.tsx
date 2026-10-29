@@ -3,15 +3,16 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
 import { formatPrice } from '../services/productService';
+import { ShoppingBag, ArrowRight, Trash2, Tag, Truck, ShieldCheck } from 'lucide-react';
 
-function CartPage() {
+const CartPage: React.FC = () => {
   const { cartItems, updateQuantity, removeFromCart, subtotal } = useCart();
   const { addToast } = useToast();
   const navigate = useNavigate();
 
-  const [couponCode, setCouponCode] = useState('');
-  const [discountPercent, setDiscountPercent] = useState(0);
-  const [appliedCoupon, setAppliedCoupon] = useState('');
+  const [couponCode, setCouponCode] = useState<string>('');
+  const [discountPercent, setDiscountPercent] = useState<number>(0);
+  const [appliedCoupon, setAppliedCoupon] = useState<string>('');
 
   const FREE_SHIPPING_THRESHOLD = 8000;
   const isFreeShipping = subtotal >= FREE_SHIPPING_THRESHOLD;
@@ -22,7 +23,7 @@ function CartPage() {
   const shippingCost = isFreeShipping ? 0 : (cartItems.length ? 450 : 0);
   const finalTotal = Math.max(0, subtotal - discountAmount + shippingCost);
 
-  const handleApplyCoupon = (e) => {
+  const handleApplyCoupon = (e: React.FormEvent) => {
     e.preventDefault();
     if (!couponCode.trim()) return;
 
@@ -44,7 +45,7 @@ function CartPage() {
     }
   };
 
-  const handleRemove = (id, name) => {
+  const handleRemove = (id: string, name: string) => {
     removeFromCart(id);
     addToast({
       title: 'Item Removed',
@@ -58,13 +59,15 @@ function CartPage() {
       <main className="page-shell">
         <section className="section">
           <div className="container" style={{ textAlign: 'center', padding: '4.5rem 0' }}>
-            <div style={{ fontSize: '3.5rem', marginBottom: '1rem' }}>🛍️</div>
+            <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(139, 92, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem', border: '1px solid rgba(139, 92, 246, 0.25)' }}>
+              <ShoppingBag size={40} color="var(--accent-purple)" />
+            </div>
             <h1 className="page-heading">Your Bag is Empty</h1>
             <p className="text-muted" style={{ maxWidth: '420px', margin: '0 auto 2rem', fontSize: '1.05rem' }}>
               Looks like you haven't added any oversized streetwear to your bag yet.
             </p>
-            <Link to="/shop" className="btn btn-glow btn-lg">
-              Explore Collection →
+            <Link to="/shop" className="btn btn-glow btn-lg luxury-hover">
+              Explore Collection <ArrowRight size={18} style={{ marginLeft: '6px', display: 'inline' }} />
             </Link>
           </div>
         </section>
@@ -82,10 +85,11 @@ function CartPage() {
             {/* Items List */}
             <div>
               {/* Free Shipping Progress Indicator */}
-              <div className="shipping-progress-bar">
+              <div className="shipping-progress-bar luxury-border-glow">
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: 600 }}>
-                  <span>
-                    {isFreeShipping ? '🎉 You have unlocked FREE Express Delivery!' : `Add ${formatPrice(shippingRemaining)} more to get Free Delivery`}
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Truck size={16} color="var(--accent-cyan)" />
+                    {isFreeShipping ? 'You have unlocked FREE Express Delivery!' : `Add ${formatPrice(shippingRemaining)} more to get Free Delivery`}
                   </span>
                   <span style={{ color: 'var(--accent-purple)' }}>{Math.round(shippingProgress)}%</span>
                 </div>
@@ -95,57 +99,60 @@ function CartPage() {
               </div>
 
               {/* Items Card List */}
-              {cartItems.map((item) => (
-                <div key={item.id} className="cart-item-card">
-                  <img src={item.images[0]} alt={item.name} className="cart-item-img" />
+              {cartItems.map((item) => {
+                const itemImg = (item.images && item.images[0]) || (item as any).imageUrl || '/images/products/remorse-tee.jpg';
+                return (
+                  <div key={item.id} className="cart-item-card luxury-card-interactive">
+                    <img src={itemImg} alt={item.name} className="cart-item-img" />
 
-                  <div className="cart-item-info">
-                    <Link to={`/product/${item.slug || item.id}`}>
-                      <h3>{item.name}</h3>
-                    </Link>
-                    <div className="cart-item-meta">
-                      {item.category} · Oversized Fit
+                    <div className="cart-item-info">
+                      <Link to={`/product/${item.slug || item.id}`}>
+                        <h3>{item.name}</h3>
+                      </Link>
+                      <div className="cart-item-meta">
+                        {item.category || '220 GSM Tee'} · Size {item.size || 'L'} · {item.color || 'Black'}
+                      </div>
+                      <div className="qty-stepper">
+                        <button
+                          type="button"
+                          className="qty-step-btn"
+                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        >
+                          -
+                        </button>
+                        <span className="qty-display">{item.quantity}</span>
+                        <button
+                          type="button"
+                          className="qty-step-btn"
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        >
+                          +
+                        </button>
+                      </div>
                     </div>
-                    <div className="qty-stepper">
+
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: '1.25rem', fontWeight: 800 }}>
+                        {formatPrice(item.price * item.quantity)}
+                      </div>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginTop: '0.2rem' }}>
+                        {formatPrice(item.price)} each
+                      </div>
                       <button
                         type="button"
-                        className="qty-step-btn"
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        onClick={() => handleRemove(item.id, item.name)}
+                        style={{ background: 'none', border: 'none', color: '#f87171', fontSize: '0.82rem', cursor: 'pointer', marginTop: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                       >
-                        -
-                      </button>
-                      <span className="qty-display">{item.quantity}</span>
-                      <button
-                        type="button"
-                        className="qty-step-btn"
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                      >
-                        +
+                        <Trash2 size={13} /> Remove
                       </button>
                     </div>
                   </div>
-
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '1.25rem', fontWeight: 800 }}>
-                      {formatPrice(item.price * item.quantity)}
-                    </div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginTop: '0.2rem' }}>
-                      {formatPrice(item.price)} each
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => handleRemove(item.id, item.name)}
-                      style={{ background: 'none', border: 'none', color: '#f87171', fontSize: '0.82rem', cursor: 'pointer', marginTop: '0.75rem', textDecoration: 'underline' }}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Order Summary Sidebar */}
-            <aside className="cart-summary-box">
+            <aside className="cart-summary-box luxury-border-glow">
               <h2 style={{ fontSize: '1.4rem', marginBottom: '1.25rem' }}>Order Summary</h2>
 
               {/* Coupon Code Input */}
@@ -158,8 +165,8 @@ function CartPage() {
                   className="form-control"
                   style={{ padding: '0.7rem 0.9rem', fontSize: '0.85rem' }}
                 />
-                <button type="submit" className="btn btn-outline btn-sm">
-                  Apply
+                <button type="submit" className="btn btn-outline btn-sm luxury-hover">
+                  <Tag size={13} style={{ marginRight: '4px' }} /> Apply
                 </button>
               </form>
 
@@ -202,15 +209,15 @@ function CartPage() {
 
               <button
                 type="button"
-                className="btn btn-glow btn-full btn-lg"
+                className="btn btn-glow btn-full btn-lg luxury-hover"
                 style={{ marginTop: '1.75rem' }}
                 onClick={() => navigate('/checkout')}
               >
                 Proceed to Checkout →
               </button>
 
-              <div style={{ marginTop: '1.25rem', textAlign: 'center', fontSize: '0.78rem', color: 'var(--text-dim)' }}>
-                🔒 256-Bit SSL Encrypted Checkout · Cash on Delivery Available
+              <div style={{ marginTop: '1.25rem', textAlign: 'center', fontSize: '0.78rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                <ShieldCheck size={14} /> 256-Bit SSL Encrypted Checkout · Cash on Delivery Available
               </div>
             </aside>
           </div>
@@ -218,6 +225,6 @@ function CartPage() {
       </section>
     </main>
   );
-}
+};
 
 export default CartPage;

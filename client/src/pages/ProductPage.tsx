@@ -3,37 +3,41 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
 import { formatPrice, getProductBySlug } from '../services/productService';
+import { Product } from '../types';
+import { Ruler, ShoppingBag, Zap, Shield, Sparkles, Star, ChevronRight, Truck, RotateCcw } from 'lucide-react';
 
-function ProductPage() {
-  const { id } = useParams();
+const ProductPage: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const { addToast } = useToast();
 
-  const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [selectedImg, setSelectedImg] = useState(0);
-  const [selectedSize, setSelectedSize] = useState('L');
-  const [quantity, setQuantity] = useState(1);
-  const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('specs');
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedImg, setSelectedImg] = useState<number>(0);
+  const [selectedSize, setSelectedSize] = useState<string>('L');
+  const [quantity, setQuantity] = useState<number>(1);
+  const [sizeGuideOpen, setSizeGuideOpen] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<'specs' | 'care' | 'shipping'>('specs');
 
   useEffect(() => {
     const loadProduct = async () => {
+      if (!id) return;
       setLoading(true);
       setError(null);
       try {
         const data = await getProductBySlug(id);
         if (data) {
           setProduct(data);
-          if (data.sizes?.length) {
-            setSelectedSize(data.sizes[0].size || 'L');
+          if (data.sizes && data.sizes.length > 0) {
+            const firstSize = typeof data.sizes[0] === 'string' ? data.sizes[0] : (data.sizes[0] as any).size || 'L';
+            setSelectedSize(firstSize);
           }
         } else {
           setError('Product not found.');
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error('Failed to load product from database:', err);
         setError(
           err.response?.data?.message ||
@@ -51,8 +55,18 @@ function ProductPage() {
       <main className="page-shell">
         <section className="section">
           <div className="container" style={{ textAlign: 'center', padding: '5rem 0' }}>
-            <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>⏳</div>
-            <p className="text-muted">Loading product from PostgreSQL database…</p>
+            <div
+              style={{
+                width: '40px',
+                height: '40px',
+                border: '3px solid rgba(255, 255, 255, 0.1)',
+                borderTopColor: 'var(--accent-purple)',
+                borderRadius: '50%',
+                animation: 'spin 0.8s linear infinite',
+                margin: '0 auto 1.25rem',
+              }}
+            />
+            <p className="text-muted">Loading product details…</p>
           </div>
         </section>
       </main>
@@ -66,9 +80,9 @@ function ProductPage() {
           <div className="container" style={{ textAlign: 'center', padding: '5rem 0' }}>
             <h1 className="page-heading">Product Not Found</h1>
             <p className="text-muted" style={{ marginBottom: '2rem' }}>
-              {error || "The streetwear piece you're looking for is either sold out or no longer available in the database."}
+              {error || "The streetwear piece you're looking for is either sold out or no longer available."}
             </p>
-            <Link to="/shop" className="btn btn-glow">
+            <Link to="/shop" className="btn btn-glow luxury-hover">
               Explore All Drops
             </Link>
           </div>
@@ -77,13 +91,13 @@ function ProductPage() {
     );
   }
 
-  // Aggregate images: primary imageUrl first, then additional images
-  const allImages = [
-    product.imageUrl,
-    ...(product.images || []).map((img) => (typeof img === 'string' ? img : img.url)),
+  // Aggregate images
+  const allImages: string[] = [
+    (product as any).imageUrl,
+    ...(product.images || []).map((img: any) => (typeof img === 'string' ? img : img.url)),
   ].filter(Boolean);
 
-  const currentImage = allImages[selectedImg] || allImages[0] || '/assets/placeholder-1.jpg';
+  const currentImage = allImages[selectedImg] || allImages[0] || '/images/products/remorse-tee.jpg';
 
   const handleAddToCart = () => {
     addToCart(product, quantity, selectedSize);
@@ -100,7 +114,7 @@ function ProductPage() {
   };
 
   const availableSizes = product.sizes && product.sizes.length > 0
-    ? product.sizes.map((s) => s.size)
+    ? product.sizes.map((s: any) => (typeof s === 'string' ? s : s.size || 'L'))
     : ['S', 'M', 'L', 'XL', 'XXL'];
 
   return (
@@ -108,19 +122,22 @@ function ProductPage() {
       <section className="section">
         <div className="container">
           {/* Breadcrumbs */}
-          <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '2rem', display: 'flex', gap: '0.5rem' }}>
-            <Link to="/" style={{ color: 'var(--text-dim)' }}>Home</Link> /
-            <Link to="/shop" style={{ color: 'var(--text-dim)' }}>Shop</Link> /
+          <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Link to="/" style={{ color: 'var(--text-dim)' }}>Home</Link>
+            <ChevronRight size={14} color="var(--text-dim)" />
+            <Link to="/shop" style={{ color: 'var(--text-dim)' }}>Shop</Link>
+            <ChevronRight size={14} color="var(--text-dim)" />
             <span style={{ color: '#fff' }}>{product.name}</span>
           </div>
 
           <div className="product-detail-grid">
             {/* Gallery Column */}
             <div className="product-gallery-side">
-              <div className="product-main-img-wrap">
+              <div className="product-main-img-wrap luxury-glow-card">
                 <img
                   src={currentImage}
                   alt={product.name}
+                  className="animate-fade-in"
                 />
               </div>
 
@@ -143,13 +160,17 @@ function ProductPage() {
             {/* Details Column */}
             <div className="product-content-side">
               <div className="product-header-meta">
-                <span className="brand-badge">2026-LIVE DROP</span>
-                {product.priority !== undefined && (
+                <span className="brand-badge">
+                  <Sparkles size={11} style={{ marginRight: '3px' }} /> 2026-LIVE DROP
+                </span>
+                {(product as any).priority !== undefined && (
                   <span className="brand-badge" style={{ background: 'rgba(255,255,255,0.06)' }}>
-                    PRIORITY #{product.priority}
+                    PRIORITY #{(product as any).priority}
                   </span>
                 )}
-                <span className="product-rating">★ {product.rating || '5.0'} ({product.numReviews || 12} reviews)</span>
+                <span className="product-rating" style={{ display: 'flex', alignItems: 'center', gap: '3px', color: 'var(--accent-amber)' }}>
+                  <Star size={14} fill="var(--accent-amber)" /> {product.rating || '5.0'} ({(product as any).numReviews || product.reviews || 12} reviews)
+                </span>
               </div>
 
               <h1 className="product-main-title">{product.name}</h1>
@@ -168,7 +189,7 @@ function ProductPage() {
                     className="size-guide-trigger"
                     onClick={() => setSizeGuideOpen(true)}
                   >
-                    📏 Size Chart
+                    <Ruler size={14} style={{ marginRight: '4px' }} /> Size Chart
                   </button>
                 </div>
 
@@ -211,18 +232,28 @@ function ProductPage() {
               <div className="product-actions-group">
                 <button
                   type="button"
-                  className="btn btn-glow btn-full"
+                  className="btn btn-glow btn-full luxury-hover"
                   onClick={handleAddToCart}
                 >
-                  Add to Bag
+                  <ShoppingBag size={18} style={{ marginRight: '8px' }} /> Add to Bag
                 </button>
                 <button
                   type="button"
-                  className="btn btn-secondary btn-full"
+                  className="btn btn-secondary btn-full luxury-hover"
                   onClick={handleBuyNow}
                 >
-                  Buy Now — Fast Checkout
+                  <Zap size={18} style={{ marginRight: '8px' }} /> Buy Now — Fast Checkout
                 </button>
+              </div>
+
+              {/* Trust Features Strip */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginTop: '1.5rem', padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                  <Truck size={16} color="var(--accent-cyan)" /> Fast Islandwide Delivery
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                  <RotateCcw size={16} color="var(--accent-purple)" /> 7-Day Size Exchanges
+                </div>
               </div>
 
               {/* Tabs for specs */}
@@ -253,7 +284,7 @@ function ProductPage() {
 
                 <div className="product-tab-content">
                   {activeTab === 'specs' && (
-                    <div className="tab-pane">
+                    <div className="tab-pane animate-fade-in">
                       <p>• <strong>Fabric:</strong> 220 GSM 100% Combed Compact Cotton</p>
                       <p>• <strong>Fit:</strong> Signature Boxy Oversized Silhouette with dropped shoulders</p>
                       <p>• <strong>Collar:</strong> 1.25" thick ribbed lycra collar that won't sag</p>
@@ -262,7 +293,7 @@ function ProductPage() {
                     </div>
                   )}
                   {activeTab === 'care' && (
-                    <div className="tab-pane">
+                    <div className="tab-pane animate-fade-in">
                       <p>• Cold machine wash inside out (30°C max)</p>
                       <p>• Do not tumble dry — hang dry in shade</p>
                       <p>• Iron inside-out on low heat; avoid direct contact with graphic artwork</p>
@@ -270,7 +301,7 @@ function ProductPage() {
                     </div>
                   )}
                   {activeTab === 'shipping' && (
-                    <div className="tab-pane">
+                    <div className="tab-pane animate-fade-in">
                       <p>• <strong>Colombo & Suburbs:</strong> Next-day delivery</p>
                       <p>• <strong>Islandwide:</strong> 2–3 business days via prompt courier</p>
                       <p>• <strong>Returns:</strong> 7-day hassle-free size exchange</p>
@@ -285,8 +316,8 @@ function ProductPage() {
 
       {/* Size Guide Modal */}
       {sizeGuideOpen && (
-        <div className="modal-backdrop" style={{ zIndex: 9999 }}>
-          <div className="glass-card" style={{ maxWidth: '580px', width: '90%', padding: '2rem' }}>
+        <div className="modal-backdrop animate-fade-in" style={{ zIndex: 9999 }}>
+          <div className="glass-card animate-scale-up" style={{ maxWidth: '580px', width: '90%', padding: '2rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h3 style={{ fontSize: '1.25rem' }}>220 GSM Oversized Tee Size Chart (Inches)</h3>
               <button
@@ -350,6 +381,6 @@ function ProductPage() {
       )}
     </main>
   );
-}
+};
 
 export default ProductPage;

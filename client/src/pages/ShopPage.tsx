@@ -3,15 +3,17 @@ import { Link } from 'react-router-dom';
 import { getProducts, formatPrice } from '../services/productService';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
+import { Product } from '../types';
+import { Search, Heart, ShoppingBag, Sparkles, Flame, Star, RefreshCw, AlertTriangle } from 'lucide-react';
 
-function ShopPage() {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [sortBy, setSortBy] = useState('priority');
-  const [wishlist, setWishlist] = useState({});
+const ShopPage: React.FC = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [sortBy, setSortBy] = useState<string>('priority');
+  const [wishlist, setWishlist] = useState<Record<string, boolean>>({});
 
   const { addToCart } = useCart();
   const { addToast } = useToast();
@@ -26,7 +28,7 @@ function ShopPage() {
       } else {
         setProducts([]);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to load products from database:', err);
       setError(
         err.response?.data?.message ||
@@ -41,17 +43,17 @@ function ShopPage() {
     loadProducts();
   }, []);
 
-  const handleQuickAdd = (product, e) => {
+  const handleQuickAdd = (product: Product, e: React.MouseEvent) => {
     e.stopPropagation();
-    addToCart(product, 1);
+    addToCart(product, 1, 'L', 'Black');
     addToast({
       title: 'Added to Bag',
-      message: `${product.name} added to your cart.`,
+      message: `${product.name} (Size L) added to your cart.`,
       type: 'cart',
     });
   };
 
-  const toggleWishlist = (id, e) => {
+  const toggleWishlist = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     setWishlist((prev) => {
       const updated = !prev[id];
@@ -70,7 +72,7 @@ function ShopPage() {
 
   // Filter & Sort logic
   const filteredProducts = products
-    .filter((p) => {
+    .filter((p: any) => {
       const name = p.name || '';
       const desc = p.description || '';
       const matchesSearch =
@@ -83,11 +85,10 @@ function ShopPage() {
 
       return matchesSearch && matchesCat;
     })
-    .sort((a, b) => {
+    .sort((a: any, b: any) => {
       if (sortBy === 'price-low') return (Number(a.price) || 0) - (Number(b.price) || 0);
       if (sortBy === 'price-high') return (Number(b.price) || 0) - (Number(a.price) || 0);
       if (sortBy === 'rating') return (Number(b.rating) || 0) - (Number(a.rating) || 0);
-      // Default: priority ascending (1 is top priority), then newest
       return (Number(a.priority) || 0) - (Number(b.priority) || 0);
     });
 
@@ -108,11 +109,12 @@ function ShopPage() {
 
           {/* Search and Sort Toolbar */}
           <div style={{ marginTop: '2.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
-            {/* Search Input */}
+            {/* Search Input with Icon */}
             <div style={{ position: 'relative', width: 'min(380px, 100%)' }}>
-              <span style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-dim)' }}>
-                🔍
-              </span>
+              <Search
+                size={18}
+                style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-dim)' }}
+              />
               <input
                 type="text"
                 placeholder="Search t-shirts, graphics, sizes..."
@@ -176,21 +178,24 @@ function ShopPage() {
                 flexWrap: 'wrap',
               }}
             >
-              <div>
-                <strong style={{ color: '#f87171', display: 'block', marginBottom: '0.25rem' }}>
-                  ⚠️ Database Connection Issue
-                </strong>
-                <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                  {error}
-                </p>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+                <AlertTriangle size={24} color="#f87171" style={{ flexShrink: 0, marginTop: '2px' }} />
+                <div>
+                  <strong style={{ color: '#f87171', display: 'block', marginBottom: '0.25rem' }}>
+                    Database Connection Notice
+                  </strong>
+                  <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                    {error}
+                  </p>
+                </div>
               </div>
               <button
                 type="button"
-                className="btn btn-glow"
+                className="btn btn-glow luxury-hover"
                 onClick={loadProducts}
-                style={{ fontSize: '0.85rem', padding: '0.5rem 1.25rem' }}
+                style={{ fontSize: '0.85rem', padding: '0.5rem 1.25rem', display: 'flex', alignItems: 'center', gap: '6px' }}
               >
-                🔄 Retry Database Query
+                <RefreshCw size={14} /> Retry Query
               </button>
             </div>
           </div>
@@ -202,8 +207,18 @@ function ShopPage() {
         <div className="container">
           {loading ? (
             <div style={{ textAlign: 'center', padding: '4rem 0' }}>
-              <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>⏳</div>
-              <p style={{ color: 'var(--text-muted)' }}>Fetching live streetwear pieces from PostgreSQL database…</p>
+              <div
+                style={{
+                  width: '40px',
+                  height: '40px',
+                  border: '3px solid rgba(255, 255, 255, 0.1)',
+                  borderTopColor: 'var(--accent-purple)',
+                  borderRadius: '50%',
+                  animation: 'spin 0.8s linear infinite',
+                  margin: '0 auto 1.25rem',
+                }}
+              />
+              <p style={{ color: 'var(--text-muted)' }}>Fetching live streetwear pieces from database…</p>
             </div>
           ) : filteredProducts.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '5rem 0' }}>
@@ -233,18 +248,26 @@ function ShopPage() {
             <div className="product-grid">
               {filteredProducts.map((product) => {
                 const isFav = wishlist[product.id];
-                const imageSrc = product.imageUrl || (product.images && product.images[0]?.url) || (product.images && product.images[0]) || '/assets/placeholder-1.jpg';
+                const imageSrc = (product as any).imageUrl || (product.images && (product.images[0] as any)?.url) || (product.images && product.images[0]) || '/images/products/remorse-tee.jpg';
                 const productSlug = product.slug || product.id;
 
                 return (
-                  <article key={product.id} className="product-card">
+                  <article key={product.id} className="product-card group">
                     {/* Badge */}
                     <div className="product-badge-wrap">
-                      {product.isFeatured && <span className="product-badge badge-featured">LIVE DROP</span>}
-                      {product.isBestSeller && <span className="product-badge badge-bestseller">BESTSELLER</span>}
-                      {product.priority !== undefined && (
+                      {(product.featured || (product as any).isFeatured) && (
+                        <span className="product-badge badge-featured">
+                          <Sparkles size={11} style={{ marginRight: '3px' }} /> LIVE DROP
+                        </span>
+                      )}
+                      {(product.bestSeller || (product as any).isBestSeller) && (
+                        <span className="product-badge badge-bestseller">
+                          <Flame size={11} style={{ marginRight: '3px' }} /> BESTSELLER
+                        </span>
+                      )}
+                      {(product as any).priority !== undefined && (
                         <span className="product-badge" style={{ background: 'rgba(255,255,255,0.1)', color: '#fff' }}>
-                          P{product.priority}
+                          P{(product as any).priority}
                         </span>
                       )}
                     </div>
@@ -252,48 +275,51 @@ function ShopPage() {
                     {/* Wishlist Button */}
                     <button
                       type="button"
-                      className={`wishlist-btn ${isFav ? 'active' : ''}`}
+                      className={`wishlist-button ${isFav ? 'active' : ''}`}
                       onClick={(e) => toggleWishlist(product.id, e)}
                       aria-label="Add to wishlist"
                     >
-                      {isFav ? '❤️' : '🤍'}
+                      <Heart size={16} fill={isFav ? '#ec4899' : 'none'} color={isFav ? '#ec4899' : '#ffffff'} />
                     </button>
 
                     {/* Thumbnail Image */}
-                    <Link to={`/product/${productSlug}`} className="product-img-wrap">
+                    <Link to={`/product/${productSlug}`} className="product-image-container">
                       <img
                         src={imageSrc}
                         alt={product.name}
                         loading="lazy"
+                        className="transition-transform duration-500 group-hover:scale-105"
                       />
                     </Link>
 
                     {/* Content */}
-                    <div className="product-info">
-                      <div className="product-meta">
-                        <span className="product-category">{product.category || '220 GSM Streetwear'}</span>
-                        <span className="product-rating">★ {product.rating || '5.0'}</span>
+                    <div className="product-card-body">
+                      <div className="product-category-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span>{product.category || '220 GSM Streetwear'}</span>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '3px', color: 'var(--accent-amber)' }}>
+                          <Star size={12} fill="var(--accent-amber)" /> {product.rating || '5.0'}
+                        </span>
                       </div>
 
-                      <h3 className="product-title">
+                      <h3 className="product-card-title">
                         <Link to={`/product/${productSlug}`}>{product.name}</Link>
                       </h3>
 
-                      <p className="product-description-snippet">
+                      <p className="product-card-desc">
                         {product.description}
                       </p>
 
-                      <div className="product-footer">
-                        <div className="product-price">
+                      <div className="product-card-footer">
+                        <div className="product-price-tag">
                           {formatPrice(product.price)}
                         </div>
 
                         <button
                           type="button"
-                          className="btn btn-secondary btn-sm"
+                          className="btn-quick-add luxury-hover"
                           onClick={(e) => handleQuickAdd(product, e)}
                         >
-                          Quick Add
+                          <ShoppingBag size={13} style={{ marginRight: '4px' }} /> Quick Add
                         </button>
                       </div>
                     </div>
@@ -306,6 +332,6 @@ function ShopPage() {
       </section>
     </main>
   );
-}
+};
 
 export default ShopPage;

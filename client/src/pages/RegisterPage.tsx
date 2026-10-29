@@ -3,28 +3,30 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import OAuthModal from '../components/OAuthModal';
+import { User as UserIcon, Lock, Mail, Eye, EyeOff, Sparkles, AtSign } from 'lucide-react';
+import { User } from '../types';
 
-function RegisterPage() {
+const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { register, loading, error, setError } = useAuth();
   const { addToast } = useToast();
 
-  const [realName, setRealName] = useState('');
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [repeatPassword, setRepeatPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [agreeTerms, setAgreeTerms] = useState(true);
+  const [realName, setRealName] = useState<string>('');
+  const [username, setUsername] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [repeatPassword, setRepeatPassword] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [agreeTerms, setAgreeTerms] = useState<boolean>(true);
 
   // Social OAuth Modal state
-  const [oauthModalOpen, setOauthModalOpen] = useState(false);
-  const [selectedProvider, setSelectedProvider] = useState('google');
+  const [oauthModalOpen, setOauthModalOpen] = useState<boolean>(false);
+  const [selectedProvider, setSelectedProvider] = useState<string>('google');
 
   const from = location.state?.from?.pathname || '/shop';
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (setError) setError(null);
 
@@ -56,12 +58,12 @@ function RegisterPage() {
     }
   };
 
-  const openSocialAuth = (provider) => {
+  const openSocialAuth = (provider: string) => {
     setSelectedProvider(provider);
     setOauthModalOpen(true);
   };
 
-  const handleSocialSuccess = (sessionUser) => {
+  const handleSocialSuccess = (sessionUser: User) => {
     if (sessionUser.isAdmin || sessionUser.role?.toLowerCase().includes('admin')) {
       navigate('/admin', { replace: true });
     } else {
@@ -74,11 +76,11 @@ function RegisterPage() {
       <div className="auth-ambient-orb-1" />
       <div className="auth-ambient-orb-2" />
 
-      <div className="auth-card-container">
+      <div className="auth-card-container animate-fade-in-up">
         <div className="auth-brand-side">
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '2rem' }}>
-              <span style={{ fontSize: '1.4rem', fontWeight: 900, letterSpacing: '0.2em' }}>ELIX</span>
+              <span style={{ fontSize: '1.4rem', fontWeight: 900, letterSpacing: '0.2em', fontFamily: 'var(--font-display)' }}>ELIX</span>
               <span className="brand-badge">MEMBERS CLUB</span>
             </div>
             <div className="auth-brand-quote">
@@ -111,7 +113,7 @@ function RegisterPage() {
                 gap: '0.4rem',
               }}
             >
-              <span>✨</span> PostgreSQL Database Synced
+              <Sparkles size={14} /> PostgreSQL Database Synced
             </div>
             <div style={{ display: 'grid', gap: '0.6rem', fontSize: '0.84rem', color: 'var(--text-secondary)' }}>
               <div>• Direct PostgreSQL cloud database storage</div>
@@ -149,7 +151,7 @@ function RegisterPage() {
             <div className="form-group">
               <label className="form-label" htmlFor="reg-realname">Real Name</label>
               <div className="form-input-wrapper">
-                <span className="form-input-icon">👤</span>
+                <UserIcon size={16} className="form-input-icon" />
                 <input
                   id="reg-realname"
                   type="text"
@@ -167,7 +169,7 @@ function RegisterPage() {
             <div className="form-group">
               <label className="form-label" htmlFor="reg-username">Username</label>
               <div className="form-input-wrapper">
-                <span className="form-input-icon">@</span>
+                <AtSign size={16} className="form-input-icon" />
                 <input
                   id="reg-username"
                   type="text"
@@ -185,7 +187,7 @@ function RegisterPage() {
             <div className="form-group">
               <label className="form-label" htmlFor="reg-email">Email Address</label>
               <div className="form-input-wrapper">
-                <span className="form-input-icon">✉</span>
+                <Mail size={16} className="form-input-icon" />
                 <input
                   id="reg-email"
                   type="email"
@@ -203,7 +205,7 @@ function RegisterPage() {
             <div className="form-group">
               <label className="form-label" htmlFor="reg-password">Password</label>
               <div className="form-input-wrapper">
-                <span className="form-input-icon">🔒</span>
+                <Lock size={16} className="form-input-icon" />
                 <input
                   id="reg-password"
                   type={showPassword ? 'text' : 'password'}
@@ -220,7 +222,7 @@ function RegisterPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
-                  {showPassword ? '👁️' : '👁️‍🗨️'}
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
@@ -229,7 +231,7 @@ function RegisterPage() {
             <div className="form-group">
               <label className="form-label" htmlFor="reg-repeat-password">Repeat Password</label>
               <div className="form-input-wrapper">
-                <span className="form-input-icon">🔒</span>
+                <Lock size={16} className="form-input-icon" />
                 <input
                   id="reg-repeat-password"
                   type={showPassword ? 'text' : 'password'}
@@ -257,11 +259,11 @@ function RegisterPage() {
 
             <button
               type="submit"
-              className="btn btn-glow btn-full"
+              className="btn btn-glow btn-full luxury-hover"
               disabled={loading}
               style={{ marginTop: '0.5rem' }}
             >
-              {loading ? 'Connecting to Database…' : 'Complete Registration (+200 Points)'}
+              {loading ? 'Connecting to Database…' : 'Register Account (+200 Points)'}
             </button>
           </form>
 
@@ -343,6 +345,6 @@ function RegisterPage() {
       />
     </div>
   );
-}
+};
 
 export default RegisterPage;

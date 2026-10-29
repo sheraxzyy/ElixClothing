@@ -1,12 +1,60 @@
-import { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
 import * as authService from '../services/authService';
-
-const AuthContext = createContext(null);
+import { User } from '../types';
 
 export const MASTER_ADMIN_PASSKEYS = ['March3@2211'];
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
+export interface LoginParams {
+  emailOrUsername?: string;
+  email?: string;
+  username?: string;
+  password?: string;
+  remember?: boolean;
+}
+
+export interface RegisterParams {
+  realName?: string;
+  name?: string;
+  username: string;
+  email: string;
+  password?: string;
+  repeatPassword?: string;
+  phone?: string;
+  remember?: boolean;
+  autoLogin?: boolean;
+}
+
+export interface OAuthParams {
+  provider: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  remember?: boolean;
+}
+
+export interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  error: string | null;
+  setError: (err: string | null) => void;
+  isMasterAdmin: boolean;
+  login: (params: LoginParams) => Promise<User | null>;
+  loginWithAdminKey: (passkey: string) => Promise<User | null>;
+  loginWithOAuth: (params: OAuthParams) => Promise<{ user: User; isNew: boolean } | null>;
+  register: (params: RegisterParams) => Promise<User | null>;
+  logout: () => void;
+  registeredCount: number;
+  usersList: User[];
+  loadUsersList: () => Promise<void>;
+  adminAddUser: (userData: any) => Promise<any>;
+  adminUpdateUser: (id: string, userData: any) => Promise<any>;
+  adminDeleteUser: (id: string) => Promise<any>;
+}
+
+const AuthContext = createContext<AuthContextType | null>(null);
+
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(() => {
     try {
       const stored = localStorage.getItem('elixUser') || sessionStorage.getItem('elixUser');
       return stored ? JSON.parse(stored) : null;
@@ -15,12 +63,12 @@ export const AuthProvider = ({ children }) => {
     }
   });
 
-  const [usersList, setUsersList] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [usersList, setUsersList] = useState<User[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Helper to extract clean error message from Axios / Server responses
-  const getErrorMessage = (err, fallback) => {
+  const getErrorMessage = (err: any, fallback: string): string => {
     if (err.response?.data?.message) {
       return err.response.data.message;
     }
@@ -31,10 +79,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Helper to save active session token & user
-  const saveSession = (userData, token, remember = true) => {
-    const sessionUser = {
+  const saveSession = (userData: any, token?: string | null, remember: boolean = true): User => {
+    const sessionUser: User = {
       id: userData.id || userData._id,
-      name: userData.realName || userData.name,
+      name: userData.realName || userData.name || userData.username || 'ELIX Member',
       realName: userData.realName || userData.name,
       username: userData.username,
       email: userData.email,
@@ -42,7 +90,7 @@ export const AuthProvider = ({ children }) => {
       isAdmin: userData.role === 'admin' || userData.role === 'owner',
       isOwner: userData.role === 'owner',
       provider: userData.provider || 'email',
-      avatar: userData.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(userData.email || userData.username)}`,
+      avatar: userData.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(userData.email || userData.username || 'elix')}`,
       points: userData.points ?? 200,
       phone: userData.phone || '',
     };
@@ -84,7 +132,7 @@ export const AuthProvider = ({ children }) => {
         if (profile) {
           saveSession(profile, null, Boolean(localStorage.getItem('elixToken')));
         }
-      } catch (err) {
+      } catch (err: any) {
         console.warn('Session verification failed, logging out:', err.message);
         clearSession();
       }
@@ -96,7 +144,13 @@ export const AuthProvider = ({ children }) => {
   // ─────────────────────────────────────────────────────────────────────────────
   //  User Login (via PostgreSQL database)
   // ─────────────────────────────────────────────────────────────────────────────
-  const handleLogin = async ({ emailOrUsername, email, username, password, remember = true }) => {
+  const handleLogin = async ({
+    emailOrUsername,
+    email,
+    username,
+    password,
+    remember = true,
+  }: LoginParams): Promise<User | null> => {
     setLoading(true);
     setError(null);
 
@@ -128,7 +182,7 @@ export const AuthProvider = ({ children }) => {
 
       const sessionUser = saveSession(data, data.token, remember);
       return sessionUser;
-    } catch (err) {
+    } catch (err: any) {
       const msg = getErrorMessage(err, 'Failed to sign in. Please verify your credentials.');
       setError(msg);
       return null;
@@ -139,7 +193,6 @@ export const AuthProvider = ({ children }) => {
 
   // ─────────────────────────────────────────────────────────────────────────────
   //  User Registration (via PostgreSQL database)
-  //  Requires: realName, username, email, password, repeatPassword
   // ─────────────────────────────────────────────────────────────────────────────
   const handleRegister = async ({
     realName,
@@ -150,7 +203,7 @@ export const AuthProvider = ({ children }) => {
     repeatPassword,
     phone = '',
     remember = true,
-  }) => {
+  }: RegisterParams): Promise<User | null> => {
     setLoading(true);
     setError(null);
 
@@ -213,7 +266,7 @@ export const AuthProvider = ({ children }) => {
 
       const sessionUser = saveSession(data, data.token, remember);
       return sessionUser;
-    } catch (err) {
+    } catch (err: any) {
       const msg = getErrorMessage(err, 'Unable to create account in database.');
       setError(msg);
       return null;
@@ -225,7 +278,13 @@ export const AuthProvider = ({ children }) => {
   // ─────────────────────────────────────────────────────────────────────────────
   //  OAuth Social Login (via PostgreSQL database)
   // ─────────────────────────────────────────────────────────────────────────────
-  const loginWithOAuth = async ({ provider, name, email, avatar, remember = true }) => {
+  const loginWithOAuth = async ({
+    provider,
+    name,
+    email,
+    avatar,
+    remember = true,
+  }: OAuthParams): Promise<{ user: User; isNew: boolean } | null> => {
     setLoading(true);
     setError(null);
 
@@ -250,8 +309,8 @@ export const AuthProvider = ({ children }) => {
       }
 
       const sessionUser = saveSession(data, data.token, remember);
-      return { user: sessionUser, isNew: data.isNew || false };
-    } catch (err) {
+      return { user: sessionUser, isNew: Boolean(data.isNew) };
+    } catch (err: any) {
       const msg = getErrorMessage(err, 'Social authentication failed.');
       setError(msg);
       return null;
@@ -263,7 +322,7 @@ export const AuthProvider = ({ children }) => {
   // ─────────────────────────────────────────────────────────────────────────────
   //  Admin Passkey Login
   // ─────────────────────────────────────────────────────────────────────────────
-  const handleAdminKeyLogin = async (passkey) => {
+  const handleAdminKeyLogin = async (passkey: string): Promise<User | null> => {
     setLoading(true);
     setError(null);
 
@@ -276,7 +335,6 @@ export const AuthProvider = ({ children }) => {
     }
 
     try {
-      // Authenticate against PostgreSQL for the store owner or admin account
       const data = await authService.login({
         emailOrUsername: 'admin@elix.lk',
         password: cleanKey,
@@ -287,8 +345,7 @@ export const AuthProvider = ({ children }) => {
         return sessionUser;
       }
       throw new Error('Invalid Master Passkey.');
-    } catch (err) {
-      // Also try Store Owner email
+    } catch (err: any) {
       try {
         const data = await authService.login({
           emailOrUsername: 'sheranadeesha39@gmail.com',
@@ -321,24 +378,24 @@ export const AuthProvider = ({ children }) => {
       if (Array.isArray(data)) {
         setUsersList(data);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.warn('Could not fetch users list from database:', err.message);
     }
   }, []);
 
-  const adminAddUser = async (userData) => {
+  const adminAddUser = async (userData: any) => {
     const res = await authService.createUserAdmin(userData);
     await loadUsersList();
     return res;
   };
 
-  const adminUpdateUser = async (id, userData) => {
+  const adminUpdateUser = async (id: string, userData: any) => {
     const res = await authService.updateUserAdmin(id, userData);
     await loadUsersList();
     return res;
   };
 
-  const adminDeleteUser = async (id) => {
+  const adminDeleteUser = async (id: string) => {
     const res = await authService.deleteUserAdmin(id);
     await loadUsersList();
     return res;
@@ -380,7 +437,7 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export const useAuth = () => {
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');

@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { InternalAxiosRequestConfig } from 'axios';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
@@ -9,7 +9,7 @@ const api = axios.create({
 });
 
 // Attach JWT token if stored in session
-api.interceptors.request.use((config) => {
+api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const token = localStorage.getItem('elixToken') || sessionStorage.getItem('elixToken');
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;

@@ -1,3 +1,4 @@
+import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import HomePage from './pages/HomePage';
@@ -12,7 +13,7 @@ import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
 import AdminPage from './pages/AdminPage';
 
-function App() {
+const App: React.FC = () => {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
@@ -30,7 +31,6 @@ function App() {
       </Route>
     </Routes>
   );
-}
-
+};
 
 export default App;

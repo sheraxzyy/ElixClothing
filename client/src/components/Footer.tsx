@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
 
-function Footer() {
+const Footer: React.FC = () => {
   const { addToast } = useToast();
-  const [newsletterEmail, setNewsletterEmail] = useState('');
-  const [subscribed, setSubscribed] = useState(false);
+  const [newsletterEmail, setNewsletterEmail] = useState<string>('');
+  const [subscribed, setSubscribed] = useState<boolean>(false);
 
-  const handleNewsletter = (e) => {
+  const handleNewsletter = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newsletterEmail) return;
     setSubscribed(true);
@@ -29,14 +29,14 @@ function Footer() {
         <div className="footer-grid">
           {/* Brand & Newsletter Column */}
           <div className="footer-brand">
-            <h3>ELIX</h3>
-            <p>
+            <h3 className="footer-brand-title">ELIX</h3>
+            <p className="footer-brand-desc">
               Engineered in Sri Lanka. Bold oversized silhouettes, 220 GSM heavyweight combed cotton, and unapologetic streetwear attitude.
             </p>
 
             <form onSubmit={handleNewsletter} style={{ marginTop: '1.5rem', maxWidth: '360px' }}>
-              <div style={{ fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.5rem', color: '#fff' }}>
-                Join the ELIX VIP Club
+              <div style={{ fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.5rem', color: '#fff', letterSpacing: '0.04em' }}>
+                JOIN THE ELIX VIP CLUB
               </div>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <input
@@ -48,13 +48,13 @@ function Footer() {
                   className="form-control"
                   style={{ padding: '0.7rem 1rem', fontSize: '0.88rem' }}
                 />
-                <button type="submit" className="btn btn-glow btn-sm" style={{ flexShrink: 0 }}>
+                <button type="submit" className="btn btn-glow btn-sm luxury-hover" style={{ flexShrink: 0 }}>
                   Join
                 </button>
               </div>
               {subscribed && (
-                <div style={{ color: 'var(--accent-cyan)', fontSize: '0.78rem', marginTop: '0.4rem' }}>
-                  ✓ You're on the early access drop list!
+                <div style={{ color: 'var(--accent-cyan)', fontSize: '0.78rem', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <span>✓</span> You're on the early access drop list!
                 </div>
               )}
             </form>
@@ -111,6 +111,7 @@ function Footer() {
             <button
               type="button"
               onClick={scrollToTop}
+              className="back-to-top-btn"
               style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '0.85rem' }}
             >
               Back to Top ↑
@@ -120,6 +121,6 @@ function Footer() {
       </div>
     </footer>
   );
-}
+};
 
 export default Footer;

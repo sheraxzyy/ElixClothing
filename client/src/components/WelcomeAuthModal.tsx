@@ -3,12 +3,12 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import OAuthModal from './OAuthModal';
 
-function WelcomeAuthModal() {
+const WelcomeAuthModal: React.FC = () => {
   const { user, login, register, loading, error, setError } = useAuth();
   const { addToast } = useToast();
 
-  const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('register');
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<'register' | 'login'>('register');
   const [formData, setFormData] = useState({
     realName: '',
     username: '',
@@ -17,11 +17,11 @@ function WelcomeAuthModal() {
     password: '',
     repeatPassword: '',
   });
-  const [localError, setLocalError] = useState('');
+  const [localError, setLocalError] = useState<string>('');
 
   // OAuth Modal state
-  const [oauthModalOpen, setOauthModalOpen] = useState(false);
-  const [selectedProvider, setSelectedProvider] = useState('google');
+  const [oauthModalOpen, setOauthModalOpen] = useState<boolean>(false);
+  const [selectedProvider, setSelectedProvider] = useState<string>('google');
 
   useEffect(() => {
     const hasSeenPrompt = localStorage.getItem('elix_auth_prompt_dismissed');
@@ -40,20 +40,20 @@ function WelcomeAuthModal() {
     localStorage.setItem('elix_auth_prompt_dismissed', 'true');
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     setLocalError('');
     if (setError) setError(null);
   };
 
-  const handleTabSwitch = (tab) => {
+  const handleTabSwitch = (tab: 'register' | 'login') => {
     setActiveTab(tab);
     setLocalError('');
     if (setError) setError(null);
   };
 
-  const openSocialAuth = (provider) => {
+  const openSocialAuth = (provider: string) => {
     setSelectedProvider(provider);
     setOauthModalOpen(true);
   };
@@ -63,7 +63,7 @@ function WelcomeAuthModal() {
     setIsOpen(false);
   };
 
-  const handleAuthSubmit = async (e) => {
+  const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLocalError('');
     if (setError) setError(null);
@@ -135,9 +135,9 @@ function WelcomeAuthModal() {
 
   return (
     <>
-      <div className="modal-backdrop" style={{ zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+      <div className="modal-backdrop animate-fade-in" style={{ zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
         <div
-          className="glass-card glass-card-glow animate-fade-in"
+          className="glass-card glass-card-glow animate-scale-up"
           style={{
             width: '100%',
             maxWidth: '480px',
@@ -170,10 +170,10 @@ function WelcomeAuthModal() {
           {/* Header */}
           <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.5rem' }}>
-              <span style={{ fontSize: '1.25rem', fontWeight: 900, letterSpacing: '0.2em' }}>ELIX</span>
+              <span style={{ fontSize: '1.25rem', fontWeight: 900, letterSpacing: '0.2em', fontFamily: 'var(--font-display)' }}>ELIX</span>
               <span className="brand-badge">MEMBERS CLUB</span>
             </div>
-            <h3 style={{ fontSize: '1.2rem', marginBottom: '0.25rem' }}>
+            <h3 style={{ fontSize: '1.2rem', marginBottom: '0.25rem', fontFamily: 'var(--font-display)' }}>
               {activeTab === 'register' ? 'Join the ELIX Community' : 'Welcome Back'}
             </h3>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
@@ -310,7 +310,7 @@ function WelcomeAuthModal() {
 
             <button
               type="submit"
-              className="btn btn-glow btn-full"
+              className="btn btn-glow btn-full luxury-hover"
               disabled={loading}
               style={{ marginTop: '0.5rem' }}
             >
@@ -358,6 +358,6 @@ function WelcomeAuthModal() {
       />
     </>
   );
-}
+};
 
 export default WelcomeAuthModal;

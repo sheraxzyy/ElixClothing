@@ -1,4 +1,6 @@
-const products = [
+import { Product } from '../types';
+
+export const products: Product[] = [
   {
     id: 'elix-remorse-tee',
     slug: 'elix-remorse-tee',

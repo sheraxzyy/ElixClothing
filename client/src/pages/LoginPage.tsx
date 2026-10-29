@@ -3,45 +3,47 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import OAuthModal from '../components/OAuthModal';
+import { User as UserIcon, Lock, Mail, Eye, EyeOff, Shield, Crown, Sparkles, AtSign } from 'lucide-react';
+import { User } from '../types';
 
-function LoginPage() {
+const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { login, loginWithAdminKey, register, loading, error, setError } = useAuth();
   const { addToast } = useToast();
 
-  const [activeTab, setActiveTab] = useState('login'); // 'login' or 'register'
+  const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
 
   // Login form state
-  const [emailOrUsername, setEmailOrUsername] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(true);
+  const [emailOrUsername, setEmailOrUsername] = useState<string>('');
+  const [loginPassword, setLoginPassword] = useState<string>('');
+  const [rememberMe, setRememberMe] = useState<boolean>(true);
 
   // Register form state (5 required fields)
-  const [realName, setRealName] = useState('');
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [repeatPassword, setRepeatPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+  const [realName, setRealName] = useState<string>('');
+  const [username, setUsername] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [repeatPassword, setRepeatPassword] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   // Social OAuth Modal State
-  const [oauthModalOpen, setOauthModalOpen] = useState(false);
-  const [selectedProvider, setSelectedProvider] = useState('google');
+  const [oauthModalOpen, setOauthModalOpen] = useState<boolean>(false);
+  const [selectedProvider, setSelectedProvider] = useState<string>('google');
 
   // Forgot Password Modal
-  const [forgotModalOpen, setForgotModalOpen] = useState(false);
-  const [forgotEmail, setForgotEmail] = useState('');
-  const [forgotSubmitted, setForgotSubmitted] = useState(false);
+  const [forgotModalOpen, setForgotModalOpen] = useState<boolean>(false);
+  const [forgotEmail, setForgotEmail] = useState<string>('');
+  const [forgotSubmitted, setForgotSubmitted] = useState<boolean>(false);
 
   // Store Owner Passkey Modal
-  const [adminModalOpen, setAdminModalOpen] = useState(false);
-  const [adminKeyInput, setAdminKeyInput] = useState('');
-  const [adminError, setAdminError] = useState('');
+  const [adminModalOpen, setAdminModalOpen] = useState<boolean>(false);
+  const [adminKeyInput, setAdminKeyInput] = useState<string>('');
+  const [adminError, setAdminError] = useState<string>('');
 
   const from = location.state?.from?.pathname || '/shop';
 
-  const handleLoginSubmit = async (e) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (setError) setError(null);
 
@@ -70,7 +72,7 @@ function LoginPage() {
     }
   };
 
-  const handleRegisterSubmit = async (e) => {
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (setError) setError(null);
 
@@ -103,12 +105,12 @@ function LoginPage() {
     }
   };
 
-  const openSocialAuth = (provider) => {
+  const openSocialAuth = (provider: string) => {
     setSelectedProvider(provider);
     setOauthModalOpen(true);
   };
 
-  const handleSocialSuccess = (sessionUser) => {
+  const handleSocialSuccess = (sessionUser: User) => {
     if (sessionUser.isAdmin || sessionUser.role?.toLowerCase().includes('admin') || sessionUser.role === 'owner') {
       navigate('/admin', { replace: true });
     } else {
@@ -116,7 +118,7 @@ function LoginPage() {
     }
   };
 
-  const handleAdminKeySubmit = async (e) => {
+  const handleAdminKeySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setAdminError('');
     try {
@@ -132,7 +134,7 @@ function LoginPage() {
       } else {
         setAdminError(error || 'Invalid Master Passkey.');
       }
-    } catch (err) {
+    } catch (err: any) {
       setAdminError(err.message || 'Authentication error.');
     }
   };
@@ -142,12 +144,12 @@ function LoginPage() {
       <div className="auth-ambient-orb-1" />
       <div className="auth-ambient-orb-2" />
 
-      <div className="auth-card-container">
+      <div className="auth-card-container animate-fade-in-up">
         {/* Left Side: Brand Narrative */}
         <div className="auth-brand-side">
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '2rem' }}>
-              <span style={{ fontSize: '1.4rem', fontWeight: 900, letterSpacing: '0.2em' }}>ELIX</span>
+              <span style={{ fontSize: '1.4rem', fontWeight: 900, letterSpacing: '0.2em', fontFamily: 'var(--font-display)' }}>ELIX</span>
               <span className="brand-badge">2026-LIVE</span>
             </div>
             <div className="auth-brand-quote">
@@ -180,7 +182,7 @@ function LoginPage() {
                 gap: '0.4rem',
               }}
             >
-              <span>⚡</span> Database Powered Auth
+              <Sparkles size={14} /> Database Powered Auth
             </div>
             <div style={{ display: 'grid', gap: '0.6rem', fontSize: '0.84rem', color: 'var(--text-secondary)' }}>
               <div>• Secure password hashing with bcryptjs</div>
@@ -234,9 +236,7 @@ function LoginPage() {
             </div>
           )}
 
-          {/* ───────────────────────────────────────────────────────────── */}
           {/* LOGIN FORM */}
-          {/* ───────────────────────────────────────────────────────────── */}
           {activeTab === 'login' && (
             <form onSubmit={handleLoginSubmit} className="auth-form">
               <div className="form-group">
@@ -244,7 +244,7 @@ function LoginPage() {
                   Email Address or Username
                 </label>
                 <div className="form-input-wrapper">
-                  <span className="form-input-icon">👤</span>
+                  <UserIcon size={16} className="form-input-icon" />
                   <input
                     id="login-identifier"
                     type="text"
@@ -283,7 +283,7 @@ function LoginPage() {
                   </button>
                 </div>
                 <div className="form-input-wrapper">
-                  <span className="form-input-icon">🔒</span>
+                  <Lock size={16} className="form-input-icon" />
                   <input
                     id="login-password"
                     type={showPassword ? 'text' : 'password'}
@@ -300,7 +300,7 @@ function LoginPage() {
                     onClick={() => setShowPassword(!showPassword)}
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
-                    {showPassword ? '👁️' : '👁️‍🗨️'}
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
               </div>
@@ -318,7 +318,7 @@ function LoginPage() {
 
               <button
                 type="submit"
-                className="btn btn-glow btn-full"
+                className="btn btn-glow btn-full luxury-hover"
                 disabled={loading}
                 style={{ marginTop: '0.5rem' }}
               >
@@ -327,9 +327,7 @@ function LoginPage() {
             </form>
           )}
 
-          {/* ───────────────────────────────────────────────────────────── */}
-          {/* REGISTER FORM (5 Inputs: realname, username, email, password, repeat password) */}
-          {/* ───────────────────────────────────────────────────────────── */}
+          {/* REGISTER FORM */}
           {activeTab === 'register' && (
             <form onSubmit={handleRegisterSubmit} className="auth-form">
               {/* 1. Real Name */}
@@ -338,7 +336,7 @@ function LoginPage() {
                   Real Name
                 </label>
                 <div className="form-input-wrapper">
-                  <span className="form-input-icon">👤</span>
+                  <UserIcon size={16} className="form-input-icon" />
                   <input
                     id="tab-reg-realname"
                     type="text"
@@ -358,7 +356,7 @@ function LoginPage() {
                   Username
                 </label>
                 <div className="form-input-wrapper">
-                  <span className="form-input-icon">@</span>
+                  <AtSign size={16} className="form-input-icon" />
                   <input
                     id="tab-reg-username"
                     type="text"
@@ -378,7 +376,7 @@ function LoginPage() {
                   Email Address
                 </label>
                 <div className="form-input-wrapper">
-                  <span className="form-input-icon">✉</span>
+                  <Mail size={16} className="form-input-icon" />
                   <input
                     id="tab-reg-email"
                     type="email"
@@ -398,7 +396,7 @@ function LoginPage() {
                   Password
                 </label>
                 <div className="form-input-wrapper">
-                  <span className="form-input-icon">🔒</span>
+                  <Lock size={16} className="form-input-icon" />
                   <input
                     id="tab-reg-password"
                     type={showPassword ? 'text' : 'password'}
@@ -415,7 +413,7 @@ function LoginPage() {
                     onClick={() => setShowPassword(!showPassword)}
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
-                    {showPassword ? '👁️' : '👁️‍🗨️'}
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
               </div>
@@ -426,7 +424,7 @@ function LoginPage() {
                   Repeat Password
                 </label>
                 <div className="form-input-wrapper">
-                  <span className="form-input-icon">🔒</span>
+                  <Lock size={16} className="form-input-icon" />
                   <input
                     id="tab-reg-repeat-password"
                     type={showPassword ? 'text' : 'password'}
@@ -453,7 +451,7 @@ function LoginPage() {
 
               <button
                 type="submit"
-                className="btn btn-glow btn-full"
+                className="btn btn-glow btn-full luxury-hover"
                 disabled={loading}
                 style={{ marginTop: '0.5rem' }}
               >
@@ -541,9 +539,12 @@ function LoginPage() {
                 letterSpacing: '0.05em',
                 textTransform: 'uppercase',
                 fontFamily: 'var(--font-mono)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
               }}
             >
-              🔒 Store Owner & Admin Portal Access
+              <Crown size={14} color="var(--accent-amber)" /> Store Owner & Admin Portal Access
             </button>
           </div>
         </div>
@@ -559,8 +560,8 @@ function LoginPage() {
 
       {/* Forgot Password Modal */}
       {forgotModalOpen && (
-        <div className="modal-backdrop" style={{ zIndex: 9999 }}>
-          <div className="glass-card" style={{ maxWidth: '420px', width: '90%', padding: '2rem' }}>
+        <div className="modal-backdrop animate-fade-in" style={{ zIndex: 9999 }}>
+          <div className="glass-card animate-scale-up" style={{ maxWidth: '420px', width: '90%', padding: '2rem' }}>
             <h3 style={{ marginBottom: '0.5rem', fontSize: '1.25rem' }}>Password Recovery</h3>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
               Enter your registered email address. Password reset instructions will be sent.
@@ -623,9 +624,9 @@ function LoginPage() {
 
       {/* Store Owner Passkey Modal */}
       {adminModalOpen && (
-        <div className="modal-backdrop" style={{ zIndex: 9999 }}>
+        <div className="modal-backdrop animate-fade-in" style={{ zIndex: 9999 }}>
           <div
-            className="glass-card"
+            className="glass-card animate-scale-up"
             style={{
               maxWidth: '440px',
               width: '90%',
@@ -635,7 +636,7 @@ function LoginPage() {
             }}
           >
             <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-              <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>👑</div>
+              <Crown size={36} color="var(--accent-amber)" style={{ margin: '0 auto 0.5rem' }} />
               <h3 style={{ fontSize: '1.3rem', letterSpacing: '0.05em' }}>Store Owner Atelier Access</h3>
               <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
                 Enter the authorized master password to enter the administrative console.
@@ -688,6 +689,6 @@ function LoginPage() {
       )}
     </div>
   );
-}
+};
 
 export default LoginPage;

@@ -3,8 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import * as productService from '../services/productService';
+import { Product, User } from '../types';
+import { Shield, Package, Users, RefreshCw, Plus, Search, Trash2, Edit, Crown, Lock, LogOut, CheckCircle2, AlertTriangle, Eye, ArrowLeft } from 'lucide-react';
 
-function AdminPage() {
+const AdminPage: React.FC = () => {
   const {
     user,
     isMasterAdmin,
@@ -22,26 +24,26 @@ function AdminPage() {
   const navigate = useNavigate();
 
   // Active Admin Section: 'products' (Store) | 'users' (Accounts)
-  const [adminSection, setAdminSection] = useState('products');
+  const [adminSection, setAdminSection] = useState<'products' | 'users'>('products');
 
-  // Admin Auth Gate State (for unauthenticated users attempting to access /admin)
-  const [passkeyInput, setPasskeyInput] = useState('');
-  const [adminEmailInput, setAdminEmailInput] = useState('admin@elix.lk');
-  const [adminPasswordInput, setAdminPasswordInput] = useState('');
-  const [authMode, setAuthMode] = useState('passkey'); // 'passkey' | 'credentials'
-  const [authError, setAuthError] = useState('');
-  const [authLoading, setAuthLoading] = useState(false);
+  // Admin Auth Gate State
+  const [passkeyInput, setPasskeyInput] = useState<string>('');
+  const [adminEmailInput, setAdminEmailInput] = useState<string>('admin@elix.lk');
+  const [adminPasswordInput, setAdminPasswordInput] = useState<string>('');
+  const [authMode, setAuthMode] = useState<'passkey' | 'credentials'>('passkey');
+  const [authError, setAuthError] = useState<string>('');
+  const [authLoading, setAuthLoading] = useState<boolean>(false);
 
   // ─────────────────────────────────────────────────────────────────────────────
   // STORE / PRODUCTS STATE
   // ─────────────────────────────────────────────────────────────────────────────
-  const [products, setProducts] = useState([]);
-  const [productsLoading, setProductsLoading] = useState(false);
-  const [productsError, setProductsError] = useState(null);
-  const [productSearch, setProductSearch] = useState('');
-  const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState(null);
-  const [deleteConfirmProduct, setDeleteConfirmProduct] = useState(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [productsLoading, setProductsLoading] = useState<boolean>(false);
+  const [productsError, setProductsError] = useState<string | null>(null);
+  const [productSearch, setProductSearch] = useState<string>('');
+  const [isAddProductModalOpen, setIsAddProductModalOpen] = useState<boolean>(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [deleteConfirmProduct, setDeleteConfirmProduct] = useState<Product | null>(null);
 
   // 5 Required Inputs for Product: imageUrl, name, description, price, priority
   const [productForm, setProductForm] = useState({
@@ -63,7 +65,7 @@ function AdminPage() {
       if (Array.isArray(data)) {
         setProducts(data);
       }
-    } catch (err) {
+    } catch (err: any) {
       setProductsError(err.response?.data?.message || 'Failed to fetch products from database.');
     } finally {
       setProductsLoading(false);
@@ -78,7 +80,7 @@ function AdminPage() {
   }, [isMasterAdmin, loadUsersList]);
 
   // Handle Product Create
-  const handleCreateProduct = async (e) => {
+  const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!productForm.imageUrl.trim() || !productForm.name.trim() || !productForm.description.trim() || !productForm.price || !productForm.priority) {
       addToast({
@@ -119,7 +121,7 @@ function AdminPage() {
         isBestSeller: false,
       });
       await loadProducts();
-    } catch (err) {
+    } catch (err: any) {
       addToast({
         title: 'Database Error',
         message: err.response?.data?.message || err.message || 'Failed to save product to database.',
@@ -129,10 +131,10 @@ function AdminPage() {
   };
 
   // Handle Product Edit
-  const handleOpenEditProduct = (prod) => {
+  const handleOpenEditProduct = (prod: any) => {
     setEditingProduct(prod);
     setProductForm({
-      imageUrl: prod.imageUrl || (prod.images && prod.images[0]?.url) || '',
+      imageUrl: prod.imageUrl || (prod.images && prod.images[0]?.url) || (prod.images && prod.images[0]) || '',
       name: prod.name || '',
       description: prod.description || '',
       price: String(prod.price || ''),
@@ -143,7 +145,7 @@ function AdminPage() {
     });
   };
 
-  const handleUpdateProduct = async (e) => {
+  const handleUpdateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingProduct) return;
 
@@ -167,7 +169,7 @@ function AdminPage() {
 
       setEditingProduct(null);
       await loadProducts();
-    } catch (err) {
+    } catch (err: any) {
       addToast({
         title: 'Update Error',
         message: err.response?.data?.message || err.message,
@@ -190,7 +192,7 @@ function AdminPage() {
         type: 'info',
       });
       await loadProducts();
-    } catch (err) {
+    } catch (err: any) {
       addToast({
         title: 'Delete Error',
         message: err.response?.data?.message || err.message,
@@ -202,16 +204,16 @@ function AdminPage() {
   // ─────────────────────────────────────────────────────────────────────────────
   // USERS MANAGEMENT STATE
   // ─────────────────────────────────────────────────────────────────────────────
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedRoleFilter, setSelectedRoleFilter] = useState('ALL');
-  const [sortBy, setSortBy] = useState('newest');
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [selectedRoleFilter, setSelectedRoleFilter] = useState<string>('ALL');
+  const [sortBy, setSortBy] = useState<string>('newest');
 
   // Modal states for Users
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [editingUser, setEditingUser] = useState(null);
-  const [deleteConfirmUser, setDeleteConfirmUser] = useState(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [deleteConfirmUser, setDeleteConfirmUser] = useState<User | null>(null);
 
-  // Form states for Add User (5 required: realName, username, email, password, role)
+  // Form states for Add User
   const [newUserData, setNewUserData] = useState({
     realName: '',
     username: '',
@@ -230,7 +232,7 @@ function AdminPage() {
     phone: '',
   });
 
-  const handleUnlockWithPasskey = async (e) => {
+  const handleUnlockWithPasskey = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError('');
     setAuthLoading(true);
@@ -243,14 +245,14 @@ function AdminPage() {
           type: 'success',
         });
       }
-    } catch (err) {
+    } catch (err: any) {
       setAuthError(err.message || 'Invalid Master Passkey.');
     } finally {
       setAuthLoading(false);
     }
   };
 
-  const handleUnlockWithCredentials = async (e) => {
+  const handleUnlockWithCredentials = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError('');
     setAuthLoading(true);
@@ -267,7 +269,7 @@ function AdminPage() {
           setAuthError('This account does not have store administrator clearance.');
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       setAuthError(err.message || 'Failed to authenticate admin account.');
     } finally {
       setAuthLoading(false);
@@ -292,7 +294,7 @@ function AdminPage() {
 
         return matchesSearch && matchesRole;
       })
-      .sort((a, b) => {
+      .sort((a: any, b: any) => {
         if (sortBy === 'newest') return (b.createdAt || 0) > (a.createdAt || 0) ? 1 : -1;
         if (sortBy === 'oldest') return (a.createdAt || 0) > (b.createdAt || 0) ? 1 : -1;
         return 0;
@@ -300,7 +302,7 @@ function AdminPage() {
   }, [usersList, searchTerm, selectedRoleFilter, sortBy]);
 
   // Handle User Create
-  const handleCreateUser = async (e) => {
+  const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newUserData.realName || !newUserData.username || !newUserData.email || !newUserData.password) {
       addToast({ title: 'Error', message: 'Please fill in all required user fields.', type: 'error' });
@@ -315,7 +317,7 @@ function AdminPage() {
       });
       setIsAddModalOpen(false);
       setNewUserData({ realName: '', username: '', email: '', password: '', role: 'customer', phone: '' });
-    } catch (err) {
+    } catch (err: any) {
       addToast({
         title: 'Creation Failed',
         message: err.response?.data?.message || err.message,
@@ -324,7 +326,7 @@ function AdminPage() {
     }
   };
 
-  const handleOpenEditUser = (targetUser) => {
+  const handleOpenEditUser = (targetUser: User) => {
     setEditingUser(targetUser);
     setEditFormData({
       realName: targetUser.realName || targetUser.name || '',
@@ -335,7 +337,7 @@ function AdminPage() {
     });
   };
 
-  const handleSaveEditUser = async (e) => {
+  const handleSaveEditUser = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingUser) return;
     try {
@@ -346,7 +348,7 @@ function AdminPage() {
         type: 'success',
       });
       setEditingUser(null);
-    } catch (err) {
+    } catch (err: any) {
       addToast({
         title: 'Update Error',
         message: err.response?.data?.message || err.message,
@@ -366,7 +368,7 @@ function AdminPage() {
         message: `Account for ${target.realName || target.name} was deleted from database.`,
         type: 'info',
       });
-    } catch (err) {
+    } catch (err: any) {
       addToast({
         title: 'Delete Error',
         message: err.response?.data?.message || err.message,
@@ -378,7 +380,7 @@ function AdminPage() {
   // Filtered Products
   const filteredProducts = useMemo(() => {
     return products
-      .filter((p) => {
+      .filter((p: any) => {
         const search = productSearch.toLowerCase();
         return (
           (p.name || '').toLowerCase().includes(search) ||
@@ -386,7 +388,7 @@ function AdminPage() {
           (p.category || '').toLowerCase().includes(search)
         );
       })
-      .sort((a, b) => (Number(a.priority) || 0) - (Number(b.priority) || 0));
+      .sort((a: any, b: any) => (Number(a.priority) || 0) - (Number(b.priority) || 0));
   }, [products, productSearch]);
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -395,8 +397,10 @@ function AdminPage() {
   if (!isMasterAdmin) {
     return (
       <div className="admin-lock-screen">
-        <div className="admin-lock-card">
-          <div className="admin-lock-icon">🔒</div>
+        <div className="admin-lock-card animate-fade-in-up luxury-border-glow">
+          <div className="admin-lock-icon">
+            <Lock size={36} color="var(--accent-purple)" />
+          </div>
           <div className="admin-lock-badge">STRICTLY RESTRICTED</div>
           <h2 className="admin-lock-title">ELIX Atelier Security Gate</h2>
           <p className="admin-lock-sub">
@@ -459,7 +463,7 @@ function AdminPage() {
               </div>
               <button
                 type="submit"
-                className="btn btn-glow btn-full"
+                className="btn btn-glow btn-full luxury-hover"
                 disabled={authLoading}
               >
                 {authLoading ? 'Verifying with Database…' : 'Unlock Atelier Console'}
@@ -492,7 +496,7 @@ function AdminPage() {
               </div>
               <button
                 type="submit"
-                className="btn btn-glow btn-full"
+                className="btn btn-glow btn-full luxury-hover"
                 disabled={authLoading}
               >
                 {authLoading ? 'Authenticating with PostgreSQL…' : 'Authenticate Admin Account'}
@@ -501,8 +505,8 @@ function AdminPage() {
           )}
 
           <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
-            <Link to="/" style={{ color: 'var(--text-dim)', fontSize: '0.85rem' }}>
-              ← Return to Main Store
+            <Link to="/" style={{ color: 'var(--text-dim)', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <ArrowLeft size={14} /> Return to Main Store
             </Link>
           </div>
         </div>
@@ -534,42 +538,41 @@ function AdminPage() {
               type="button"
               className={`btn btn-sm ${adminSection === 'products' ? 'btn-glow' : 'btn-secondary'}`}
               onClick={() => setAdminSection('products')}
-              style={{ fontSize: '0.85rem' }}
+              style={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}
             >
-              📦 Store Products ({products.length})
+              <Package size={14} /> Store Products ({products.length})
             </button>
             <button
               type="button"
               className={`btn btn-sm ${adminSection === 'users' ? 'btn-glow' : 'btn-secondary'}`}
               onClick={() => setAdminSection('users')}
-              style={{ fontSize: '0.85rem' }}
+              style={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}
             >
-              👥 User Accounts ({usersList.length})
+              <Users size={14} /> User Accounts ({usersList.length})
             </button>
           </div>
 
           <button
             type="button"
-            className="btn btn-secondary btn-sm"
+            className="btn btn-secondary btn-sm luxury-hover"
             onClick={() => {
               logout();
               navigate('/');
             }}
+            style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
           >
-            Sign Out
+            <LogOut size={14} /> Sign Out
           </button>
         </div>
       </header>
 
       <div className="container" style={{ padding: '2rem 1rem' }}>
-        {/* ───────────────────────────────────────────────────────────────────── */}
         {/* SECTION 1: STORE PRODUCTS MANAGEMENT */}
-        {/* ───────────────────────────────────────────────────────────────────── */}
         {adminSection === 'products' && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem' }}>
               <div>
-                <h1 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '0.25rem' }}>
+                <h1 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '0.25rem', fontFamily: 'var(--font-display)' }}>
                   Store Products Management
                 </h1>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
@@ -580,15 +583,16 @@ function AdminPage() {
               <div style={{ display: 'flex', gap: '0.75rem' }}>
                 <button
                   type="button"
-                  className="btn btn-secondary"
+                  className="btn btn-secondary luxury-hover"
                   onClick={loadProducts}
                   title="Reload from PostgreSQL"
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
                 >
-                  🔄 Refresh
+                  <RefreshCw size={14} /> Refresh
                 </button>
                 <button
                   type="button"
-                  className="btn btn-glow"
+                  className="btn btn-glow luxury-hover"
                   onClick={() => {
                     setProductForm({
                       imageUrl: '',
@@ -602,28 +606,30 @@ function AdminPage() {
                     });
                     setIsAddProductModalOpen(true);
                   }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
                 >
-                  + Add Store Product
+                  <Plus size={16} /> Add Store Product
                 </button>
               </div>
             </div>
 
             {/* Error banner if products failed to load */}
             {productsError && (
-              <div style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid #ef4444', borderRadius: 'var(--radius-md)', padding: '1rem', marginBottom: '1.5rem', color: '#f87171' }}>
-                ⚠️ {productsError}
+              <div style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid #ef4444', borderRadius: 'var(--radius-md)', padding: '1rem', marginBottom: '1.5rem', color: '#f87171', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <AlertTriangle size={18} /> {productsError}
               </div>
             )}
 
             {/* Search toolbar */}
-            <div style={{ marginBottom: '1.5rem' }}>
+            <div style={{ marginBottom: '1.5rem', position: 'relative', maxWidth: '400px' }}>
+              <Search size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-dim)' }} />
               <input
                 type="text"
                 placeholder="Search products by name, description, category..."
                 value={productSearch}
                 onChange={(e) => setProductSearch(e.target.value)}
                 className="form-control"
-                style={{ maxWidth: '400px' }}
+                style={{ paddingLeft: '2.5rem' }}
               />
             </div>
 
@@ -658,14 +664,14 @@ function AdminPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredProducts.map((prod) => (
+                    {filteredProducts.map((prod: any) => (
                       <tr key={prod.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', fontSize: '0.9rem' }}>
-                        <td style={{ padding: '1rem', fontWeight: 800, color: 'var(--accent-cyan)' }}>
+                        <td style={{ padding: '1rem', fontWeight: 800, color: 'var(--accent-cyan)', fontFamily: 'var(--font-mono)' }}>
                           #{prod.priority}
                         </td>
                         <td style={{ padding: '1rem' }}>
                           <img
-                            src={prod.imageUrl || (prod.images && prod.images[0]?.url) || '/assets/placeholder-1.jpg'}
+                            src={prod.imageUrl || (prod.images && prod.images[0]?.url) || (prod.images && prod.images[0]) || '/images/products/remorse-tee.jpg'}
                             alt={prod.name}
                             style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: 'var(--radius-sm)' }}
                           />
@@ -689,19 +695,19 @@ function AdminPage() {
                         <td style={{ padding: '1rem', textAlign: 'right' }}>
                           <button
                             type="button"
-                            className="btn btn-secondary btn-sm"
+                            className="btn btn-secondary btn-sm luxury-hover"
                             onClick={() => handleOpenEditProduct(prod)}
-                            style={{ marginRight: '0.5rem' }}
+                            style={{ marginRight: '0.5rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                           >
-                            Edit
+                            <Edit size={13} /> Edit
                           </button>
                           <button
                             type="button"
-                            className="btn btn-sm"
+                            className="btn btn-sm luxury-hover"
                             onClick={() => setDeleteConfirmProduct(prod)}
-                            style={{ background: 'rgba(239, 68, 68, 0.2)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)' }}
+                            style={{ background: 'rgba(239, 68, 68, 0.2)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                           >
-                            Delete
+                            <Trash2 size={13} /> Delete
                           </button>
                         </td>
                       </tr>
@@ -713,14 +719,12 @@ function AdminPage() {
           </div>
         )}
 
-        {/* ───────────────────────────────────────────────────────────────────── */}
         {/* SECTION 2: USERS MANAGEMENT */}
-        {/* ───────────────────────────────────────────────────────────────────── */}
         {adminSection === 'users' && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem' }}>
               <div>
-                <h1 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '0.25rem' }}>
+                <h1 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '0.25rem', fontFamily: 'var(--font-display)' }}>
                   Registered Database Accounts
                 </h1>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
@@ -731,34 +735,39 @@ function AdminPage() {
               <div style={{ display: 'flex', gap: '0.75rem' }}>
                 <button
                   type="button"
-                  className="btn btn-secondary"
+                  className="btn btn-secondary luxury-hover"
                   onClick={loadUsersList}
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
                 >
-                  🔄 Refresh Users
+                  <RefreshCw size={14} /> Refresh Users
                 </button>
                 <button
                   type="button"
-                  className="btn btn-glow"
+                  className="btn btn-glow luxury-hover"
                   onClick={() => {
                     setNewUserData({ realName: '', username: '', email: '', password: '', role: 'customer', phone: '' });
                     setIsAddModalOpen(true);
                   }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
                 >
-                  + Add User
+                  <Plus size={16} /> Add User
                 </button>
               </div>
             </div>
 
             {/* Filter toolbar */}
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
-              <input
-                type="text"
-                placeholder="Search users by name, username, email..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="form-control"
-                style={{ maxWidth: '320px' }}
-              />
+            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1.5rem', alignItems: 'center' }}>
+              <div style={{ position: 'relative', width: '320px' }}>
+                <Search size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-dim)' }} />
+                <input
+                  type="text"
+                  placeholder="Search users by name, username, email..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="form-control"
+                  style={{ paddingLeft: '2.5rem' }}
+                />
+              </div>
 
               <div style={{ display: 'flex', gap: '0.4rem' }}>
                 {['ALL', 'CUSTOMER', 'ADMIN'].map((rf) => (
@@ -823,20 +832,20 @@ function AdminPage() {
                         <td style={{ padding: '1rem', textAlign: 'right' }}>
                           <button
                             type="button"
-                            className="btn btn-secondary btn-sm"
+                            className="btn btn-secondary btn-sm luxury-hover"
                             onClick={() => handleOpenEditUser(u)}
-                            style={{ marginRight: '0.5rem' }}
+                            style={{ marginRight: '0.5rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                           >
-                            Edit
+                            <Edit size={13} /> Edit
                           </button>
                           {u.role !== 'owner' && u.email !== 'sheranadeesha39@gmail.com' && u.email !== 'admin@elix.lk' && (
                             <button
                               type="button"
-                              className="btn btn-sm"
+                              className="btn btn-sm luxury-hover"
                               onClick={() => setDeleteConfirmUser(u)}
-                              style={{ background: 'rgba(239, 68, 68, 0.2)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)' }}
+                              style={{ background: 'rgba(239, 68, 68, 0.2)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                             >
-                              Delete
+                              <Trash2 size={13} /> Delete
                             </button>
                           )}
                         </td>
@@ -850,13 +859,10 @@ function AdminPage() {
         )}
       </div>
 
-      {/* ───────────────────────────────────────────────────────────────────── */}
       {/* MODAL: ADD / EDIT STORE PRODUCT */}
-      {/* Form with 5 required inputs: Image URL, Name, Description, Price, Priority */}
-      {/* ───────────────────────────────────────────────────────────────────── */}
       {(isAddProductModalOpen || editingProduct) && (
-        <div className="modal-backdrop" style={{ zIndex: 9999 }}>
-          <div className="glass-card" style={{ maxWidth: '580px', width: '90%', maxHeight: '90vh', overflowY: 'auto', padding: '2rem' }}>
+        <div className="modal-backdrop animate-fade-in" style={{ zIndex: 9999 }}>
+          <div className="glass-card animate-scale-up" style={{ maxWidth: '580px', width: '90%', maxHeight: '90vh', overflowY: 'auto', padding: '2rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h3 style={{ fontSize: '1.3rem' }}>
                 {editingProduct ? 'Edit Store Product' : 'Add Store Product (PostgreSQL)'}
@@ -880,9 +886,9 @@ function AdminPage() {
                   Image URL <span style={{ color: 'var(--accent-purple)' }}>*</span>
                 </label>
                 <input
-                  type="url"
+                  type="text"
                   required
-                  placeholder="https://images.unsplash.com/... or /assets/placeholder-1.jpg"
+                  placeholder="https://images.unsplash.com/... or /images/products/remorse-tee.jpg"
                   value={productForm.imageUrl}
                   onChange={(e) => setProductForm({ ...productForm, imageUrl: e.target.value })}
                   className="form-control"
@@ -893,7 +899,7 @@ function AdminPage() {
                       src={productForm.imageUrl}
                       alt="Preview"
                       style={{ maxHeight: '100px', borderRadius: 'var(--radius-sm)', objectFit: 'cover' }}
-                      onError={(e) => { e.target.style.display = 'none'; }}
+                      onError={(e: any) => { e.target.style.display = 'none'; }}
                     />
                   </div>
                 )}
@@ -1011,7 +1017,7 @@ function AdminPage() {
                 </button>
                 <button
                   type="submit"
-                  className="btn btn-glow"
+                  className="btn btn-glow luxury-hover"
                   style={{ flex: 1 }}
                 >
                   {editingProduct ? 'Save Changes' : 'Publish to Store'}
@@ -1022,12 +1028,10 @@ function AdminPage() {
         </div>
       )}
 
-      {/* ───────────────────────────────────────────────────────────────────── */}
       {/* MODAL: DELETE PRODUCT CONFIRM */}
-      {/* ───────────────────────────────────────────────────────────────────── */}
       {deleteConfirmProduct && (
-        <div className="modal-backdrop" style={{ zIndex: 9999 }}>
-          <div className="glass-card" style={{ maxWidth: '440px', width: '90%', padding: '2rem' }}>
+        <div className="modal-backdrop animate-fade-in" style={{ zIndex: 9999 }}>
+          <div className="glass-card animate-scale-up" style={{ maxWidth: '440px', width: '90%', padding: '2rem' }}>
             <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem', color: '#f87171' }}>
               Delete Product?
             </h3>
@@ -1045,7 +1049,7 @@ function AdminPage() {
               </button>
               <button
                 type="button"
-                className="btn"
+                className="btn luxury-hover"
                 style={{ flex: 1, background: '#ef4444', color: '#fff' }}
                 onClick={handleDeleteProduct}
               >
@@ -1056,12 +1060,10 @@ function AdminPage() {
         </div>
       )}
 
-      {/* ───────────────────────────────────────────────────────────────────── */}
       {/* MODAL: ADD / EDIT USER */}
-      {/* ───────────────────────────────────────────────────────────────────── */}
       {(isAddModalOpen || editingUser) && (
-        <div className="modal-backdrop" style={{ zIndex: 9999 }}>
-          <div className="glass-card" style={{ maxWidth: '480px', width: '90%', padding: '2rem' }}>
+        <div className="modal-backdrop animate-fade-in" style={{ zIndex: 9999 }}>
+          <div className="glass-card animate-scale-up" style={{ maxWidth: '480px', width: '90%', padding: '2rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h3 style={{ fontSize: '1.25rem' }}>
                 {editingUser ? 'Edit User Account' : 'Create User Account (PostgreSQL)'}
@@ -1171,7 +1173,7 @@ function AdminPage() {
                 </button>
                 <button
                   type="submit"
-                  className="btn btn-glow"
+                  className="btn btn-glow luxury-hover"
                   style={{ flex: 1 }}
                 >
                   {editingUser ? 'Save User' : 'Create User'}
@@ -1182,12 +1184,10 @@ function AdminPage() {
         </div>
       )}
 
-      {/* ───────────────────────────────────────────────────────────────────── */}
       {/* MODAL: DELETE USER CONFIRM */}
-      {/* ───────────────────────────────────────────────────────────────────── */}
       {deleteConfirmUser && (
-        <div className="modal-backdrop" style={{ zIndex: 9999 }}>
-          <div className="glass-card" style={{ maxWidth: '440px', width: '90%', padding: '2rem' }}>
+        <div className="modal-backdrop animate-fade-in" style={{ zIndex: 9999 }}>
+          <div className="glass-card animate-scale-up" style={{ maxWidth: '440px', width: '90%', padding: '2rem' }}>
             <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem', color: '#f87171' }}>
               Delete Account?
             </h3>
@@ -1205,7 +1205,7 @@ function AdminPage() {
               </button>
               <button
                 type="button"
-                className="btn"
+                className="btn luxury-hover"
                 style={{ flex: 1, background: '#ef4444', color: '#fff' }}
                 onClick={handleDeleteUser}
               >
@@ -1217,6 +1217,6 @@ function AdminPage() {
       )}
     </div>
   );
-}
+};
 
 export default AdminPage;

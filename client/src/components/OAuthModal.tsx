@@ -1,21 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { User } from '../types';
 
-export default function OAuthModal({ isOpen, provider, onClose, onSuccess }) {
+interface OAuthModalProps {
+  isOpen: boolean;
+  provider: string;
+  onClose: () => void;
+  onSuccess?: (user: User) => void;
+}
+
+interface SocialProfile {
+  name: string;
+  email: string;
+  avatar: string;
+  subtext: string;
+}
+
+export const OAuthModal: React.FC<OAuthModalProps> = ({ isOpen, provider, onClose, onSuccess }) => {
   const { loginWithOAuth, loading } = useAuth();
   const { addToast } = useToast();
 
-  // State for customized social credentials
-  const [nameInput, setNameInput] = useState('');
-  const [emailInput, setEmailInput] = useState('');
-  const [avatarUrl, setAvatarUrl] = useState('');
-  const [appleHideEmail, setAppleHideEmail] = useState(false);
-  const [customMode, setCustomMode] = useState(false);
-  const [authStage, setAuthStage] = useState('select'); // 'select' | 'verifying' | 'custom'
+  const [nameInput, setNameInput] = useState<string>('');
+  const [emailInput, setEmailInput] = useState<string>('');
+  const [avatarUrl, setAvatarUrl] = useState<string>('');
+  const [appleHideEmail, setAppleHideEmail] = useState<boolean>(false);
+  const [customMode, setCustomMode] = useState<boolean>(false);
+  const [authStage, setAuthStage] = useState<'select' | 'verifying' | 'custom'>('select');
 
-  // Pre-configured realistic profiles for instant 1-click social sign-in
-  const defaultProfiles = {
+  const defaultProfiles: Record<string, SocialProfile[]> = {
     google: [
       {
         name: 'Kasun Silva',
@@ -69,7 +82,14 @@ export default function OAuthModal({ isOpen, provider, onClose, onSuccess }) {
 
   const currentProvider = (provider || 'google').toLowerCase();
 
-  const handleSelectQuickProfile = async (profile) => {
+  const getProviderTitle = (): string => {
+    if (currentProvider === 'google') return 'Google';
+    if (currentProvider === 'apple') return 'Apple ID';
+    if (currentProvider === 'github') return 'GitHub';
+    return 'Social';
+  };
+
+  const handleSelectQuickProfile = async (profile: SocialProfile) => {
     setAuthStage('verifying');
     try {
       const res = await loginWithOAuth({
@@ -91,7 +111,7 @@ export default function OAuthModal({ isOpen, provider, onClose, onSuccess }) {
         if (onSuccess) onSuccess(res.user);
         onClose();
       }
-    } catch (err) {
+    } catch (err: any) {
       setAuthStage('select');
       addToast({
         title: 'Authentication Failed',
@@ -101,7 +121,7 @@ export default function OAuthModal({ isOpen, provider, onClose, onSuccess }) {
     }
   };
 
-  const handleCustomSubmit = async (e) => {
+  const handleCustomSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!emailInput.trim()) return;
 
@@ -136,7 +156,7 @@ export default function OAuthModal({ isOpen, provider, onClose, onSuccess }) {
         if (onSuccess) onSuccess(res.user);
         onClose();
       }
-    } catch (err) {
+    } catch (err: any) {
       setAuthStage('custom');
       addToast({
         title: 'Authentication Failed',
@@ -144,13 +164,6 @@ export default function OAuthModal({ isOpen, provider, onClose, onSuccess }) {
         type: 'error',
       });
     }
-  };
-
-  const getProviderTitle = () => {
-    if (currentProvider === 'google') return 'Google';
-    if (currentProvider === 'apple') return 'Apple ID';
-    if (currentProvider === 'github') return 'GitHub';
-    return 'Social';
   };
 
   const getProviderIcon = () => {
@@ -483,4 +496,6 @@ export default function OAuthModal({ isOpen, provider, onClose, onSuccess }) {
       </div>
     </div>
   );
-}
+};
+
+export default OAuthModal;

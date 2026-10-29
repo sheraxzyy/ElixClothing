@@ -3,28 +3,43 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
+import { ShoppingBag, Shield, User as UserIcon, MoreVertical, Home, Sparkles, Compass, Ruler, MessageSquare, LogOut, ChevronDown, Flame } from 'lucide-react';
 
-function NavBar() {
+const NavBar: React.FC = () => {
   const { user, logout, registeredCount, isMasterAdmin } = useAuth();
   const { cartItems } = useCart();
   const { addToast } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [dotsMenuOpen, setDotsMenuOpen] = useState(false);
-  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
-  const dotsMenuRef = useRef(null);
-  const userDropdownRef = useRef(null);
+  const [dotsMenuOpen, setDotsMenuOpen] = useState<boolean>(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState<boolean>(false);
+  const [scrolled, setScrolled] = useState<boolean>(false);
+  const dotsMenuRef = useRef<HTMLDivElement>(null);
+  const userDropdownRef = useRef<HTMLDivElement>(null);
 
   const totalItemsCount = cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0);
 
+  // Scroll detection for navbar glass blur intensification
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 30) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   // Close menus on outside click
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dotsMenuRef.current && !dotsMenuRef.current.contains(event.target)) {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (dotsMenuRef.current && !dotsMenuRef.current.contains(event.target as Node)) {
         setDotsMenuOpen(false);
       }
-      if (userDropdownRef.current && !userDropdownRef.current.contains(event.target)) {
+      if (userDropdownRef.current && !userDropdownRef.current.contains(event.target as Node)) {
         setUserDropdownOpen(false);
       }
     };
@@ -58,15 +73,17 @@ function NavBar() {
     <>
       {/* Top Announcement Marquee Bar */}
       <div className="announcement-bar">
-        <span className="announcement-badge">2026-LIVE</span>
-        <span>220 GSM HEAVYWEIGHT GRAPHIC TEES // FLAT LKR 3,000 // FREE ISLANDWIDE DELIVERY OVER 8,000 LKR</span>
+        <span className="announcement-badge animate-pulse">2026-LIVE</span>
+        <div className="announcement-marquee">
+          <span>220 GSM HEAVYWEIGHT GRAPHIC TEES // FLAT LKR 3,000 // FREE ISLANDWIDE DELIVERY OVER 8,000 LKR // WORLDWIDE DROP</span>
+        </div>
       </div>
 
-      <header className="site-header">
+      <header className={`site-header ${scrolled ? 'header-scrolled' : ''}`}>
         <div className="container header-row">
-          {/* Brand Logo */}
-          <Link to="/" className="brand-link">
-            <span>ELIX</span>
+          {/* Brand Logo with Luxury Font */}
+          <Link to="/" className="brand-link group">
+            <span className="brand-logo-text">ELIX</span>
             <span className="brand-badge">2026</span>
           </Link>
 
@@ -107,22 +124,22 @@ function NavBar() {
                 to="/admin"
                 className={`nav-item nav-admin-pill ${location.pathname === '/admin' ? 'active' : ''}`}
               >
-                <span className="nav-admin-icon">🛡️</span> Admin Console
+                <Shield size={14} className="nav-admin-icon" /> Admin Console
               </Link>
             )}
           </nav>
 
           {/* Header Actions (Cart, User, 3-Dots Menu) */}
           <div className="header-actions">
-            {/* Cart Icon Button */}
+            {/* Cart Icon Button with Bounce Indicator */}
             <Link
               to="/cart"
-              className="cart-button-link"
+              className="cart-button-link group"
               aria-label={`Cart with ${totalItemsCount} items`}
             >
-              <span>🛍️</span>
+              <ShoppingBag size={20} className="cart-svg-icon transition-transform duration-300 group-hover:scale-110" />
               {totalItemsCount > 0 && (
-                <span className="cart-badge-count">{totalItemsCount}</span>
+                <span className="cart-badge-count animate-bounce-subtle">{totalItemsCount}</span>
               )}
             </Link>
 
@@ -143,11 +160,11 @@ function NavBar() {
                     className="user-avatar-mini"
                   />
                   <span className="user-nav-name">{user.name.split(' ')[0]}</span>
-                  <span style={{ fontSize: '0.75rem', opacity: 0.6 }}>▾</span>
+                  <ChevronDown size={14} style={{ opacity: 0.7, transform: userDropdownOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s ease' }} />
                 </button>
 
                 {userDropdownOpen && (
-                  <div className="user-dropdown-popover">
+                  <div className="user-dropdown-popover animate-fade-in-down">
                     <div className="user-dropdown-header">
                       <div className="user-dropdown-name">{user.name}</div>
                       <div className="user-dropdown-role">{user.role || 'ELIX Member'}</div>
@@ -161,14 +178,14 @@ function NavBar() {
                       className="user-dropdown-item"
                       onClick={() => setUserDropdownOpen(false)}
                     >
-                      <span>🛍️</span> My Bag ({totalItemsCount})
+                      <ShoppingBag size={16} /> My Bag ({totalItemsCount})
                     </Link>
                     <Link
                       to="/shop"
                       className="user-dropdown-item"
                       onClick={() => setUserDropdownOpen(false)}
                     >
-                      <span>🔥</span> Exclusive Drops
+                      <Flame size={16} /> Exclusive Drops
                     </Link>
                     {isMasterAdmin && (
                       <Link
@@ -177,7 +194,7 @@ function NavBar() {
                         onClick={() => setUserDropdownOpen(false)}
                         style={{ color: '#38bdf8' }}
                       >
-                        <span>🛡️</span> Admin Console ({registeredCount})
+                        <Shield size={16} /> Admin Console ({registeredCount})
                       </Link>
                     )}
                     <button
@@ -186,14 +203,14 @@ function NavBar() {
                       onClick={handleLogout}
                       style={{ color: '#f87171' }}
                     >
-                      <span>🚪</span> Sign Out
+                      <LogOut size={16} /> Sign Out
                     </button>
                   </div>
                 )}
               </div>
             ) : (
-              <Link to="/login" className="btn btn-outline btn-sm desktop-signin-btn">
-                <span>👤</span> Sign In
+              <Link to="/login" className="btn btn-outline btn-sm desktop-signin-btn luxury-btn-sm">
+                <UserIcon size={14} style={{ marginRight: '0.35rem' }} /> Sign In
               </Link>
             )}
 
@@ -208,12 +225,12 @@ function NavBar() {
                 onClick={() => setDotsMenuOpen(!dotsMenuOpen)}
                 title="Navigation Menu"
               >
-                <span className="dots-icon-symbol">⋮</span>
+                <MoreVertical size={20} className="dots-icon-svg" />
               </button>
 
               {/* 3-Dots Dropdown Popover Menu */}
               {dotsMenuOpen && (
-                <div className="dots-menu-popover" role="menu">
+                <div className="dots-menu-popover animate-fade-in-scale" role="menu">
                   {/* Top Branding Section */}
                   <div className="dots-menu-header">
                     <div>
@@ -231,7 +248,7 @@ function NavBar() {
                       onClick={() => setDotsMenuOpen(false)}
                     >
                       <span className="dots-link-label">
-                        <span className="dots-link-icon">🏠</span> Home
+                        <Home size={16} className="dots-link-icon" /> Home
                       </span>
                       <span className="dots-link-arrow">→</span>
                     </Link>
@@ -242,7 +259,7 @@ function NavBar() {
                       onClick={() => setDotsMenuOpen(false)}
                     >
                       <span className="dots-link-label">
-                        <span className="dots-link-icon">🔥</span> Shop All Collections
+                        <Flame size={16} className="dots-link-icon" /> Shop All Collections
                       </span>
                       <span className="dots-link-arrow">→</span>
                     </Link>
@@ -253,7 +270,7 @@ function NavBar() {
                       onClick={() => setDotsMenuOpen(false)}
                     >
                       <span className="dots-link-label">
-                        <span className="dots-link-icon">⚡</span> About ELIX
+                        <Sparkles size={16} className="dots-link-icon" /> About ELIX
                       </span>
                       <span className="dots-link-arrow">→</span>
                     </Link>
@@ -264,7 +281,7 @@ function NavBar() {
                       onClick={() => setDotsMenuOpen(false)}
                     >
                       <span className="dots-link-label">
-                        <span className="dots-link-icon">📏</span> Size Guide
+                        <Ruler size={16} className="dots-link-icon" /> Size Guide
                       </span>
                       <span className="dots-link-arrow">→</span>
                     </Link>
@@ -275,7 +292,7 @@ function NavBar() {
                       onClick={() => setDotsMenuOpen(false)}
                     >
                       <span className="dots-link-label">
-                        <span className="dots-link-icon">💬</span> Contact & Support
+                        <MessageSquare size={16} className="dots-link-icon" /> Contact & Support
                       </span>
                       <span className="dots-link-arrow">→</span>
                     </Link>
@@ -286,7 +303,7 @@ function NavBar() {
                       onClick={() => setDotsMenuOpen(false)}
                     >
                       <span className="dots-link-label">
-                        <span className="dots-link-icon">🛍️</span> Shopping Bag
+                        <ShoppingBag size={16} className="dots-link-icon" /> Shopping Bag
                       </span>
                       {totalItemsCount > 0 ? (
                         <span className="dots-cart-badge">{totalItemsCount}</span>
@@ -305,7 +322,7 @@ function NavBar() {
                           onClick={() => setDotsMenuOpen(false)}
                         >
                           <span className="dots-link-label">
-                            <span className="dots-link-icon">🛡️</span> Admin Console
+                            <Shield size={16} className="dots-link-icon" /> Admin Console
                           </span>
                           <span className="dots-admin-badge">{registeredCount} Users</span>
                         </Link>
@@ -343,7 +360,7 @@ function NavBar() {
                       <div className="dots-auth-actions">
                         <Link
                           to="/login"
-                          className="btn btn-primary btn-sm btn-full"
+                          className="btn btn-primary btn-sm btn-full luxury-btn-sm"
                           onClick={() => setDotsMenuOpen(false)}
                         >
                           Sign In / Register
@@ -359,6 +376,6 @@ function NavBar() {
       </header>
     </>
   );
-}
+};
 
 export default NavBar;

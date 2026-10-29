@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
 import { useToast } from '../context/ToastContext';
+import { MessageSquare, Phone, Mail, MapPin, Camera, Clock, PackageCheck, Send, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
 
 const CONTACT_CONFIG = {
-  phoneLabel: '+94 77 123 4567',
+  phoneLabel: '+94 70 118 4914',
   whatsappNumber: '+94771234567',
-  email: 'support@elix.lk',
+  email: 'Contact@sheraxzy.com',
   pressEmail: 'studio@elix.lk',
-  instagramHandle: '@elixofficial',
-  tiktokHandle: '@elixofficial',
-  phoneLink: 'tel:+94771234567',
-  whatsappLink: 'https://wa.me/94771234567?text=Hello%20ELIX%20Team%2C%20I%20have%20an%20inquiry%20regarding%202026-LIVE%20T-Shirts',
-  emailLink: 'mailto:support@elix.lk',
+  instagramHandle: '@elix.official',
+  tiktokHandle: '@elix.official',
+  phoneLink: 'tel:+94701184914',
+  whatsappLink: 'https://wa.me/94701184914?text=Hello%20ELIX%20Team%2C%20I%20have%20an%20inquiry%20regarding%202026-LIVE%20T-Shirts',
+  emailLink: 'Contact@sheraxzy.com',
   instagramLink: 'https://www.instagram.com',
   tiktokLink: 'https://www.tiktok.com',
-  address: 'ELIX Studio, 42 Ward Place, Colombo 07, Sri Lanka',
+  address: 'ELIX Studio, Malabe, Sri Lanka',
   hours: 'Monday – Saturday: 10:00 AM – 8:00 PM (IST)',
 };
 
@@ -45,10 +46,28 @@ const FAQ_ITEMS = [
   },
 ];
 
-function ContactPage() {
+interface FormDataType {
+  name: string;
+  email: string;
+  phone: string;
+  inquiryType: string;
+  orderNumber: string;
+  message: string;
+}
+
+interface LookupResultType {
+  orderId: string;
+  status: string;
+  carrier: string;
+  trackingNumber: string;
+  estimatedDelivery: string;
+  items: string;
+}
+
+const ContactPage: React.FC = () => {
   const { addToast } = useToast();
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormDataType>({
     name: '',
     email: '',
     phone: '',
@@ -57,14 +76,14 @@ function ContactPage() {
     message: '',
   });
 
-  const [errors, setErrors] = useState({});
-  const [submitted, setSubmitted] = useState(false);
-  const [openFAQ, setOpenFAQ] = useState(0);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitted, setSubmitted] = useState<boolean>(false);
+  const [openFAQ, setOpenFAQ] = useState<number>(0);
 
   // Live Order Lookup Widget State
-  const [lookupId, setLookupId] = useState('');
-  const [lookupResult, setLookupResult] = useState(null);
-  const [lookupLoading, setLookupLoading] = useState(false);
+  const [lookupId, setLookupId] = useState<string>('');
+  const [lookupResult, setLookupResult] = useState<LookupResultType | null>(null);
+  const [lookupLoading, setLookupLoading] = useState<boolean>(false);
 
   const inquiryTypes = [
     'Order Support',
@@ -73,7 +92,7 @@ function ContactPage() {
     'Feedback & Collabs',
   ];
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
@@ -82,7 +101,7 @@ function ContactPage() {
   };
 
   const validateForm = () => {
-    const errs = {};
+    const errs: Record<string, string> = {};
     if (!formData.name.trim()) errs.name = 'Please provide your full name.';
     if (!formData.email.trim()) {
       errs.email = 'Please provide your email address.';
@@ -93,7 +112,7 @@ function ContactPage() {
     return errs;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length > 0) {
@@ -118,7 +137,7 @@ function ContactPage() {
     });
   };
 
-  const handleOrderLookup = (e) => {
+  const handleOrderLookup = (e: React.FormEvent) => {
     e.preventDefault();
     if (!lookupId.trim()) return;
 
@@ -143,13 +162,13 @@ function ContactPage() {
       {/* Top Banner */}
       <section className="section" style={{ paddingBottom: '1.5rem' }}>
         <div className="container">
-          <div style={{ maxWidth: '780px' }}>
+          <div style={{ maxWidth: '780px' }} className="animate-fade-in-up">
             <div className="hero-badge-live" style={{ marginBottom: '0.75rem' }}>
               <span className="pulse-dot" />
               <span>COLOMBO STUDIO DESK · LIVE 2026</span>
             </div>
             <h1 className="page-heading" style={{ fontSize: 'clamp(2.5rem, 5vw, 3.8rem)', marginBottom: '0.8rem' }}>
-              CONTACT & <span className="gradient-text">DIRECT DISPATCH</span>
+              CONTACT & <span className="gradient-text luxury-shimmer">DIRECT DISPATCH</span>
             </h1>
             <p className="text-muted" style={{ fontSize: '1.1rem', lineHeight: 1.6 }}>
               Connect directly with the ELIX atelier. Whether you need immediate sizing recommendations for our 220 GSM heavyweight t-shirts, order status verification, or custom inquiries, we're ready to assist.
@@ -162,13 +181,15 @@ function ContactPage() {
       <section className="section" style={{ paddingTop: 0 }}>
         <div className="container">
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.5rem', marginBottom: '3.5rem' }}>
-            
+
             {/* 1. WhatsApp & Direct Phone */}
-            <div className="glass-card" style={{ padding: '2rem 1.75rem', position: 'relative', overflow: 'hidden' }}>
+            <div className="glass-card luxury-card-interactive" style={{ padding: '2rem 1.75rem', position: 'relative', overflow: 'hidden' }}>
               <div style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'rgba(34, 197, 94, 0.15)', color: '#4ade80', padding: '0.2rem 0.6rem', borderRadius: 'var(--radius-full)', fontSize: '0.72rem', fontFamily: 'var(--font-mono)' }}>
                 ● FASTEST REPLY
               </div>
-              <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>💬</div>
+              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(34, 197, 94, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
+                <MessageSquare size={24} color="#4ade80" />
+              </div>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--accent-cyan)', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '0.3rem' }}>
                 Channel 01 // Instant Chat
               </div>
@@ -180,18 +201,20 @@ function ContactPage() {
                 {CONTACT_CONFIG.phoneLabel}
               </div>
               <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
-                <a href={CONTACT_CONFIG.whatsappLink} target="_blank" rel="noreferrer noopener" className="btn btn-primary btn-sm">
+                <a href={CONTACT_CONFIG.whatsappLink} target="_blank" rel="noreferrer noopener" className="btn btn-primary btn-sm luxury-hover">
                   WhatsApp Us →
                 </a>
-                <a href={CONTACT_CONFIG.phoneLink} className="btn btn-outline btn-sm">
+                <a href={CONTACT_CONFIG.phoneLink} className="btn btn-outline btn-sm luxury-hover">
                   Call Line
                 </a>
               </div>
             </div>
 
             {/* 2. Email Desk */}
-            <div className="glass-card" style={{ padding: '2rem 1.75rem' }}>
-              <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>✉️</div>
+            <div className="glass-card luxury-card-interactive" style={{ padding: '2rem 1.75rem' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(139, 92, 246, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
+                <Mail size={24} color="var(--accent-purple)" />
+              </div>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--accent-purple)', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '0.3rem' }}>
                 Channel 02 // Official Desk
               </div>
@@ -203,15 +226,17 @@ function ContactPage() {
                 {CONTACT_CONFIG.email}
               </div>
               <div>
-                <a href={CONTACT_CONFIG.emailLink} className="btn btn-outline btn-sm">
+                <a href={CONTACT_CONFIG.emailLink} className="btn btn-outline btn-sm luxury-hover">
                   Send Email →
                 </a>
               </div>
             </div>
 
             {/* 3. Studio & Fulfillment Hub */}
-            <div className="glass-card" style={{ padding: '2rem 1.75rem' }}>
-              <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>📍</div>
+            <div className="glass-card luxury-card-interactive" style={{ padding: '2rem 1.75rem' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(245, 158, 11, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
+                <MapPin size={24} color="var(--accent-amber)" />
+              </div>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--accent-amber)', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '0.3rem' }}>
                 Channel 03 // Studio Hub
               </div>
@@ -219,8 +244,8 @@ function ContactPage() {
               <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.25rem', lineHeight: 1.5 }}>
                 {CONTACT_CONFIG.address}
               </p>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
-                🕒 {CONTACT_CONFIG.hours}
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Clock size={14} /> {CONTACT_CONFIG.hours}
               </div>
               <div>
                 <span className="brand-badge" style={{ background: 'rgba(255, 255, 255, 0.05)' }}>
@@ -230,9 +255,11 @@ function ContactPage() {
             </div>
 
             {/* 4. Social Network */}
-            <div className="glass-card" style={{ padding: '2rem 1.75rem' }}>
-              <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>📸</div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--accent-purple)', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '0.3rem' }}>
+            <div className="glass-card luxury-card-interactive" style={{ padding: '2rem 1.75rem' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(236, 72, 153, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
+                <Camera size={24} color="var(--accent-pink)" />
+              </div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--accent-pink)', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '0.3rem' }}>
                 Channel 04 // Social Community
               </div>
               <h3 style={{ fontSize: '1.3rem', marginBottom: '0.5rem' }}>Follow @elixofficial</h3>
@@ -240,10 +267,10 @@ function ContactPage() {
                 Tag us wearing your 2026-LIVE tees to be featured on our official feeds.
               </p>
               <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
-                <a href={CONTACT_CONFIG.instagramLink} target="_blank" rel="noreferrer noopener" className="btn btn-outline btn-sm">
+                <a href={CONTACT_CONFIG.instagramLink} target="_blank" rel="noreferrer noopener" className="btn btn-outline btn-sm luxury-hover">
                   Instagram
                 </a>
-                <a href={CONTACT_CONFIG.tiktokLink} target="_blank" rel="noreferrer noopener" className="btn btn-outline btn-sm">
+                <a href={CONTACT_CONFIG.tiktokLink} target="_blank" rel="noreferrer noopener" className="btn btn-outline btn-sm luxury-hover">
                   TikTok
                 </a>
               </div>
@@ -253,7 +280,7 @@ function ContactPage() {
 
           {/* Main 2-Column Creative Section: Form + Live Order Tracking Tool */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '2.5rem', alignItems: 'start' }}>
-            
+
             {/* Left: Creative Message Form */}
             <div className="glass-card" style={{ padding: '2.5rem 2rem' }}>
               <div style={{ marginBottom: '1.75rem' }}>
@@ -267,13 +294,13 @@ function ContactPage() {
               </div>
 
               {submitted && (
-                <div style={{ background: 'rgba(34, 197, 94, 0.15)', border: '1px solid rgba(34, 197, 94, 0.4)', color: '#86efac', padding: '1rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem', fontSize: '0.92rem' }}>
-                  ✓ Inquiry submitted successfully! A representative from our Colombo studio will contact you shortly.
+                <div style={{ background: 'rgba(34, 197, 94, 0.15)', border: '1px solid rgba(34, 197, 94, 0.4)', color: '#86efac', padding: '1rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem', fontSize: '0.92rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <CheckCircle2 size={18} color="#86efac" /> Inquiry submitted successfully! A representative from our Colombo studio will contact you shortly.
                 </div>
               )}
 
               <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-                
+
                 {/* Inquiry Type Chips */}
                 <div>
                   <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
@@ -372,7 +399,7 @@ function ContactPage() {
                   </label>
                   <textarea
                     name="message"
-                    rows="4"
+                    rows={4}
                     value={formData.message}
                     onChange={handleChange}
                     placeholder="Tell us how we can help you..."
@@ -382,19 +409,19 @@ function ContactPage() {
                   {errors.message && <span style={{ color: '#f87171', fontSize: '0.78rem' }}>{errors.message}</span>}
                 </div>
 
-                <button type="submit" className="btn btn-glow btn-lg" style={{ marginTop: '0.5rem' }}>
-                  Dispatch Inquiry →
+                <button type="submit" className="btn btn-glow btn-lg luxury-hover" style={{ marginTop: '0.5rem' }}>
+                  <Send size={16} style={{ marginRight: '6px' }} /> Dispatch Inquiry
                 </button>
               </form>
             </div>
 
             {/* Right: Live Order Tracker Widget + FAQs */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-              
+
               {/* Live Order Tracking Lookup Widget */}
-              <div className="glass-card glass-card-glow" style={{ padding: '2rem 1.75rem', border: '1px solid rgba(139, 92, 246, 0.3)' }}>
+              <div className="glass-card glass-card-glow luxury-border-glow" style={{ padding: '2rem 1.75rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.6rem' }}>
-                  <span style={{ fontSize: '1.2rem' }}>📦</span>
+                  <PackageCheck size={22} color="var(--accent-purple)" />
                   <h3 style={{ fontSize: '1.25rem', margin: 0 }}>Instant Order Tracking</h3>
                 </div>
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', marginBottom: '1.25rem' }}>
@@ -410,13 +437,13 @@ function ContactPage() {
                     className="form-control"
                     style={{ flex: 1 }}
                   />
-                  <button type="submit" className="btn btn-primary btn-sm" disabled={lookupLoading}>
+                  <button type="submit" className="btn btn-primary btn-sm luxury-hover" disabled={lookupLoading}>
                     {lookupLoading ? 'Checking...' : 'Track'}
                   </button>
                 </form>
 
                 {lookupResult && (
-                  <div style={{ background: 'rgba(255, 255, 255, 0.04)', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)', marginTop: '1rem' }}>
+                  <div className="animate-fade-in" style={{ background: 'rgba(255, 255, 255, 0.04)', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)', marginTop: '1rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                       <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Order Reference:</span>
                       <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--accent-cyan)' }}>{lookupResult.orderId}</span>
@@ -476,12 +503,14 @@ function ContactPage() {
                         }}
                       >
                         <span>{item.question}</span>
-                        <span style={{ color: 'var(--accent-purple)', fontSize: '1.2rem', marginLeft: '0.5rem' }}>
-                          {openFAQ === index ? '−' : '+'}
-                        </span>
+                        {openFAQ === index ? (
+                          <ChevronUp size={16} color="var(--accent-purple)" />
+                        ) : (
+                          <ChevronDown size={16} color="var(--accent-purple)" />
+                        )}
                       </button>
                       {openFAQ === index && (
-                        <div style={{ padding: '0 1rem 1rem 1rem', color: 'var(--text-muted)', fontSize: '0.88rem', lineHeight: 1.6 }}>
+                        <div className="animate-fade-in" style={{ padding: '0 1rem 1rem 1rem', color: 'var(--text-muted)', fontSize: '0.88rem', lineHeight: 1.6 }}>
                           {item.answer}
                         </div>
                       )}
@@ -496,6 +525,6 @@ function ContactPage() {
       </section>
     </main>
   );
-}
+};
 
 export default ContactPage;

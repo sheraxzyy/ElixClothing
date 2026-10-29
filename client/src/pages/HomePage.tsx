@@ -3,25 +3,33 @@ import { Link } from 'react-router-dom';
 import { getProducts, formatPrice } from '../services/productService';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
+import { Product } from '../types';
+import { Sparkles, Heart, ShoppingBag, ArrowRight, ShieldCheck, Flame, Star, Layers, Scissors, CheckCircle2 } from 'lucide-react';
 
-function HomePage() {
-  const [products, setProducts] = useState([]);
-  const [activeCategory, setActiveCategory] = useState('All');
-  const [wishlist, setWishlist] = useState({});
+const HomePage: React.FC = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [activeCategory, setActiveCategory] = useState<string>('All');
+  const [wishlist, setWishlist] = useState<Record<string, boolean>>({});
   const { addToCart } = useCart();
   const { addToast } = useToast();
 
   useEffect(() => {
     const load = async () => {
-      const data = await getProducts();
-      setProducts(data);
+      try {
+        const data = await getProducts();
+        if (Array.isArray(data)) {
+          setProducts(data);
+        }
+      } catch (err) {
+        console.warn('Failed to load products:', err);
+      }
     };
     load();
   }, []);
 
-  const handleQuickAdd = (product, e) => {
+  const handleQuickAdd = (product: Product, e: React.MouseEvent) => {
     e.stopPropagation();
-    addToCart(product, 1);
+    addToCart(product, 1, 'L', 'Black');
     addToast({
       title: 'Added to Bag',
       message: `${product.name} (Size L) added to your cart.`,
@@ -29,7 +37,7 @@ function HomePage() {
     });
   };
 
-  const toggleWishlist = (productId, e) => {
+  const toggleWishlist = (productId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     const isLiked = !wishlist[productId];
     setWishlist((prev) => ({ ...prev, [productId]: isLiked }));
@@ -44,19 +52,24 @@ function HomePage() {
 
   const categories = ['All', 'Best Sellers', 'New Drops', 'Oversized'];
 
-  const filteredProducts = products.filter((p) => {
+  const filteredProducts = products.filter((p: any) => {
     if (activeCategory === 'Best Sellers') return Boolean(p.isBestSeller || p.bestSeller);
     if (activeCategory === 'New Drops') return Boolean(p.isFeatured || p.featured);
-    if (activeCategory === 'Oversized') return p.category === 'T-Shirts';
+    if (activeCategory === 'Oversized') return p.category === 'T-Shirts' || !p.category;
     return true;
   });
 
   const featuredHeroProduct = products[0] || {
-    name: 'ELIX Oversized 01',
-    price: 4200,
-    slug: 'elix-oversized-01',
-    imageUrl: '/assets/placeholder-1.jpg',
+    name: 'REMORSE Graphic Tee',
+    price: 3000,
+    slug: 'elix-remorse-tee',
+    images: ['/images/products/remorse-tee.jpg'],
   };
+
+  const heroImageSrc = (featuredHeroProduct as any).imageUrl ||
+    (featuredHeroProduct.images && (featuredHeroProduct.images[0] as any)?.url) ||
+    (featuredHeroProduct.images && featuredHeroProduct.images[0]) ||
+    '/images/products/remorse-tee.jpg';
 
   return (
     <main>
@@ -65,14 +78,14 @@ function HomePage() {
         <div className="container">
           <div className="hero-grid">
             {/* Left Copy */}
-            <div className="animate-fade-in">
+            <div className="animate-fade-in-up">
               <div className="hero-badge-live">
                 <span className="pulse-dot" />
-                <span>2026-LIVE</span>
+                <span className="font-mono">2026-LIVE ATELIER</span>
               </div>
 
               <h1 className="hero-heading">
-                WEAR YOUR <span className="gradient-text">ATTITUDE.</span>
+                WEAR YOUR <span className="gradient-text luxury-shimmer">ATTITUDE.</span>
               </h1>
 
               <p className="hero-desc">
@@ -80,10 +93,10 @@ function HomePage() {
               </p>
 
               <div className="hero-cta-group">
-                <Link to="/shop" className="btn btn-glow btn-lg">
-                  Explore T-Shirts Collection →
+                <Link to="/shop" className="btn btn-glow btn-lg luxury-hover">
+                  Explore T-Shirts Collection <ArrowRight size={18} style={{ marginLeft: '0.4rem', display: 'inline-block' }} />
                 </Link>
-                <Link to="/about" className="btn btn-outline btn-lg">
+                <Link to="/about" className="btn btn-outline btn-lg luxury-hover">
                   The Atelier
                 </Link>
               </div>
@@ -107,14 +120,15 @@ function HomePage() {
 
             {/* Right Visual 3D Tilt Card */}
             <div className="hero-visual-card animate-float">
-              <div className="hero-image-wrap">
+              <div className="hero-image-wrap luxury-glow-card">
                 <img
-                  src={featuredHeroProduct.imageUrl || (featuredHeroProduct.images && featuredHeroProduct.images[0]?.url) || (featuredHeroProduct.images && featuredHeroProduct.images[0]) || '/assets/placeholder-1.jpg'}
+                  src={heroImageSrc}
                   alt="ELIX 2026-Live Exclusive Streetwear Tee"
                 />
                 <div className="hero-image-gradient" />
                 <div className="hero-card-floating-badge">
-                  <span>⚡ 2026-LIVE DROP</span>
+                  <Sparkles size={14} style={{ marginRight: '0.35rem' }} />
+                  <span>2026-LIVE DROP</span>
                 </div>
                 <div className="hero-card-bottom-info">
                   <div>
@@ -124,7 +138,7 @@ function HomePage() {
                   </div>
                   <Link
                     to={`/product/${featuredHeroProduct.slug || 'elix-remorse-tee'}`}
-                    className="btn btn-primary btn-sm"
+                    className="btn btn-primary btn-sm luxury-hover"
                   >
                     View Drop
                   </Link>
@@ -176,7 +190,7 @@ function HomePage() {
               </div>
               <h2 className="section-title">HEAVYWEIGHT T-SHIRTS</h2>
             </div>
-            <Link to="/shop" className="btn btn-outline btn-sm">
+            <Link to="/shop" className="btn btn-outline btn-sm luxury-hover">
               View All T-Shirts ({products.length}) →
             </Link>
           </div>
@@ -197,51 +211,61 @@ function HomePage() {
 
           {/* Product Grid */}
           <div className="product-grid">
-            {filteredProducts.map((product) => (
-              <article key={product.id} className="product-card">
-                <div className="product-image-container">
-                  {product.bestSeller && (
-                    <span className="product-card-badge">BESTSELLER</span>
-                  )}
-                  <button
-                    type="button"
-                    className={`wishlist-button ${wishlist[product.id] ? 'active' : ''}`}
-                    onClick={(e) => toggleWishlist(product.id, e)}
-                    aria-label="Save to wishlist"
-                  >
-                    {wishlist[product.id] ? '♥' : '♡'}
-                  </button>
-                  <Link to={`/product/${product.slug || product.id}`}>
-                    <img
-                      src={product.imageUrl || (product.images && product.images[0]?.url) || (product.images && product.images[0]) || '/assets/placeholder-1.jpg'}
-                      alt={product.name}
-                      loading="lazy"
-                    />
-                  </Link>
-                </div>
+            {filteredProducts.map((product) => {
+              const pImg = (product as any).imageUrl ||
+                (product.images && (product.images[0] as any)?.url) ||
+                (product.images && product.images[0]) ||
+                '/images/products/remorse-tee.jpg';
 
-                <div className="product-card-body">
-                  <div className="product-category-label">220 GSM Heavyweight Tee</div>
-                  <Link to={`/product/${product.slug}`}>
-                    <h3 className="product-card-title">{product.name}</h3>
-                  </Link>
-                  <p className="product-card-desc">{product.description}</p>
-
-                  <div className="product-card-footer">
-                    <div className="product-price-tag">
-                      {formatPrice(product.price)}
-                    </div>
+              return (
+                <article key={product.id} className="product-card group">
+                  <div className="product-image-container">
+                    {(product.bestSeller || (product as any).isBestSeller) && (
+                      <span className="product-card-badge">
+                        <Flame size={12} style={{ display: 'inline', marginRight: '3px' }} /> BESTSELLER
+                      </span>
+                    )}
                     <button
                       type="button"
-                      className="btn-quick-add"
-                      onClick={(e) => handleQuickAdd(product, e)}
+                      className={`wishlist-button ${wishlist[product.id] ? 'active' : ''}`}
+                      onClick={(e) => toggleWishlist(product.id, e)}
+                      aria-label="Save to wishlist"
                     >
-                      + Quick Add
+                      <Heart size={16} fill={wishlist[product.id] ? '#ec4899' : 'none'} color={wishlist[product.id] ? '#ec4899' : '#ffffff'} />
                     </button>
+                    <Link to={`/product/${product.slug || product.id}`}>
+                      <img
+                        src={pImg}
+                        alt={product.name}
+                        loading="lazy"
+                        className="transition-transform duration-500 group-hover:scale-105"
+                      />
+                    </Link>
                   </div>
-                </div>
-              </article>
-            ))}
+
+                  <div className="product-card-body">
+                    <div className="product-category-label">220 GSM Heavyweight Tee</div>
+                    <Link to={`/product/${product.slug || product.id}`}>
+                      <h3 className="product-card-title">{product.name}</h3>
+                    </Link>
+                    <p className="product-card-desc">{product.description}</p>
+
+                    <div className="product-card-footer">
+                      <div className="product-price-tag">
+                        {formatPrice(product.price)}
+                      </div>
+                      <button
+                        type="button"
+                        className="btn-quick-add luxury-hover"
+                        onClick={(e) => handleQuickAdd(product, e)}
+                      >
+                        <ShoppingBag size={14} style={{ marginRight: '4px' }} /> Quick Add
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -249,7 +273,7 @@ function HomePage() {
       {/* Lookbook / Streetwear Craft Banner */}
       <section className="section" style={{ paddingTop: 0 }}>
         <div className="container">
-          <div className="lookbook-banner">
+          <div className="lookbook-banner luxury-border-glow">
             <div className="lookbook-grid">
               <div>
                 <div style={{ fontFamily: 'var(--font-mono)', color: 'var(--accent-cyan)', fontSize: '0.82rem', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '0.6rem' }}>
@@ -264,21 +288,27 @@ function HomePage() {
 
                 <div className="spec-list">
                   <div className="spec-item">
-                    <div className="spec-icon">🧵</div>
+                    <div className="spec-icon">
+                      <Layers size={22} color="var(--accent-purple)" />
+                    </div>
                     <div className="spec-text">
                       <h4>220 GSM Combed Cotton</h4>
                       <p>Ultra-dense, breathable heavyweight weave built for all-day streetwear drape and tropical comfort.</p>
                     </div>
                   </div>
                   <div className="spec-item">
-                    <div className="spec-icon">📐</div>
+                    <div className="spec-icon">
+                      <Scissors size={22} color="var(--accent-cyan)" />
+                    </div>
                     <div className="spec-text">
                       <h4>Engineered Oversized Proportion</h4>
                       <p>Dropped shoulders, wider chest girth, and calibrated body length for clean streetwear drape.</p>
                     </div>
                   </div>
                   <div className="spec-item">
-                    <div className="spec-icon">🛡️</div>
+                    <div className="spec-icon">
+                      <ShieldCheck size={22} color="var(--accent-pink)" />
+                    </div>
                     <div className="spec-text">
                       <h4>High-Density Screen Prints</h4>
                       <p>Silicone and high-definition screen prints tested to endure 100+ machine washes without peeling or fading.</p>
@@ -319,33 +349,34 @@ function HomePage() {
                 role: 'Verified Buyer · Colombo',
                 review: 'The 220 GSM cotton weight is perfect. Best oversized graphic tee fit in Sri Lanka. Holds its collar and structure completely.',
                 item: 'REMORSE Graphic Tee (Black / XL)',
-                rating: '★★★★★',
               },
               {
                 name: 'Sarah Mendis',
                 role: 'Verified Buyer · Kandy',
                 review: 'Super clean packaging and arrived in 48 hours! The graphic details on the SINNER tee are phenomenal.',
                 item: 'SINNER Gothic Angel Tee (Black / M)',
-                rating: '★★★★★',
               },
               {
                 name: 'Rohan Jayawardena',
                 role: 'Verified Buyer · Galle',
                 review: 'The 220 GSM fabric thickness is 10/10. Flat LKR 3,000 price for this quality is unbeatable.',
                 item: 'ARACHNID Tribal Spider Tee (White / L)',
-                rating: '★★★★★',
               },
             ].map((rev, i) => (
-              <div key={i} className="glass-card" style={{ padding: '1.75rem' }}>
-                <div style={{ color: 'var(--accent-amber)', fontSize: '1rem', marginBottom: '0.75rem' }}>
-                  {rev.rating}
+              <div key={i} className="glass-card luxury-card-interactive" style={{ padding: '1.75rem' }}>
+                <div style={{ color: 'var(--accent-amber)', display: 'flex', gap: '2px', marginBottom: '0.75rem' }}>
+                  {[...Array(5)].map((_, sIdx) => (
+                    <Star key={sIdx} size={16} fill="var(--accent-amber)" color="var(--accent-amber)" />
+                  ))}
                 </div>
                 <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, fontSize: '0.95rem', marginBottom: '1.25rem' }}>
                   "{rev.review}"
                 </p>
                 <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                   <div>
-                    <h4 style={{ fontSize: '0.95rem', marginBottom: '0.2rem' }}>{rev.name}</h4>
+                    <h4 style={{ fontSize: '0.95rem', marginBottom: '0.2rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      {rev.name} <CheckCircle2 size={13} color="var(--accent-cyan)" />
+                    </h4>
                     <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{rev.role}</span>
                   </div>
                   <span style={{ fontSize: '0.75rem', fontFamily: 'var(--font-mono)', color: 'var(--accent-cyan)' }}>
@@ -361,9 +392,9 @@ function HomePage() {
       {/* VIP Early Access CTA Section */}
       <section className="section">
         <div className="container">
-          <div className="glass-card glass-card-glow" style={{ textAlign: 'center', padding: '4rem 2rem' }}>
+          <div className="glass-card glass-card-glow luxury-border-glow" style={{ textAlign: 'center', padding: '4rem 2rem' }}>
             <span className="hero-badge-live" style={{ margin: '0 auto 1.25rem' }}>
-              <span>⚡</span> 2026-LIVE VIP PASS
+              <Sparkles size={14} style={{ marginRight: '0.35rem' }} /> 2026-LIVE VIP PASS
             </span>
             <h2 style={{ fontSize: 'clamp(2.2rem, 4vw, 3.5rem)', marginBottom: '1rem' }}>
               GET ACCESS TO 2026-LIVE DROPS
@@ -372,10 +403,10 @@ function HomePage() {
               Sign in or create your ELIX account to unlock secret drops, accumulate reward points, and checkout faster.
             </p>
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Link to="/login" className="btn btn-glow btn-lg">
+              <Link to="/login" className="btn btn-glow btn-lg luxury-hover">
                 Sign In / Create Account
               </Link>
-              <Link to="/shop" className="btn btn-outline btn-lg">
+              <Link to="/shop" className="btn btn-outline btn-lg luxury-hover">
                 Browse T-Shirts Catalog
               </Link>
             </div>
@@ -384,6 +415,6 @@ function HomePage() {
       </section>
     </main>
   );
-}
+};
 
 export default HomePage;

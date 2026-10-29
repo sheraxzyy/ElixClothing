@@ -5,7 +5,8 @@
 :root {
   color-scheme: dark;
   --font-primary: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-  --font-display: 'Outfit', 'Space Grotesk', system-ui, sans-serif;
+  --font-display: 'Syne', 'Outfit', 'Space Grotesk', system-ui, sans-serif;
+  --font-couture: 'Cinzel', serif;
   --font-mono: 'Space Grotesk', monospace;
 
   /* Color Palette */
@@ -213,13 +214,168 @@ main {
   to { transform: rotate(360deg); }
 }
 
-/* Animation utility classes */
+/* Animation utility classes & Premium Streetwear Physics */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes bounceSubtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes luxuryShimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+@keyframes borderGlowPulse {
+  0%, 100% {
+    border-color: rgba(139, 92, 246, 0.35);
+    box-shadow: 0 0 25px rgba(139, 92, 246, 0.15);
+  }
+  50% {
+    border-color: rgba(6, 182, 212, 0.45);
+    box-shadow: 0 0 35px rgba(6, 182, 212, 0.25);
+  }
+}
+
 .animate-fade-in {
   animation: slideUpFade 0.6s var(--transition-smooth) forwards;
 }
 
+.animate-fade-in-up {
+  animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in-down {
+  animation: fadeInDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-scale-up {
+  animation: scaleUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-bounce-subtle {
+  animation: bounceSubtle 2.5s ease-in-out infinite;
+}
+
 .animate-float {
   animation: floatSlow 5s ease-in-out infinite;
+}
+
+.luxury-shimmer {
+  background: linear-gradient(
+    90deg,
+    #ffffff 0%,
+    #c4b5fd 25%,
+    #ffffff 50%,
+    #67e8f9 75%,
+    #ffffff 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: luxuryShimmer 6s linear infinite;
+}
+
+.luxury-border-glow {
+  border: 1px solid rgba(139, 92, 246, 0.35) !important;
+  animation: borderGlowPulse 4s ease-in-out infinite;
+}
+
+.luxury-hover {
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.luxury-hover:hover {
+  transform: translateY(-3px) scale(1.015);
+  box-shadow: 0 12px 30px -8px rgba(139, 92, 246, 0.4);
+}
+
+.luxury-card-interactive {
+  transition: all 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.luxury-card-interactive:hover {
+  transform: translateY(-6px);
+  border-color: rgba(139, 92, 246, 0.45) !important;
+  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.8), 0 0 25px rgba(139, 92, 246, 0.25) !important;
+}
+
+.luxury-glow-card {
+  position: relative;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.luxury-glow-card:hover {
+  transform: translateY(-4px) scale(1.01);
+}
+
+.brand-logo-text {
+  font-family: 'Syne', var(--font-display) !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.28em !important;
+  background: linear-gradient(135deg, #ffffff 40%, #c4b5fd 80%, #38bdf8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transition: letter-spacing 0.3s ease;
+}
+
+.brand-link:hover .brand-logo-text {
+  letter-spacing: 0.32em !important;
+}
+
+.header-scrolled {
+  background: rgba(6, 7, 9, 0.92) !important;
+  backdrop-filter: blur(28px) !important;
+  -webkit-backdrop-filter: blur(28px) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 1px 0 rgba(139, 92, 246, 0.15);
+}
+
+.premium-toast-animate {
+  animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .gradient-text {
