@@ -47,6 +47,17 @@ app.get('/', (_req, res) => {
   res.json({ message: 'ELIX API is running with PostgreSQL & Prisma.' });
 });
 
+// ── Keep-alive / health check (hit by Vercel cron every 5 min) ───────────────
+app.get('/api/health', async (_req, res) => {
+  try {
+    const { default: prisma } = await import('./config/db.js');
+    await prisma.$queryRaw`SELECT 1`;
+    res.json({ status: 'ok', db: 'connected', ts: new Date().toISOString() });
+  } catch (err) {
+    res.status(503).json({ status: 'error', db: 'unreachable', message: err.message });
+  }
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
