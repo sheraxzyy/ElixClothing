@@ -12,7 +12,7 @@ const CONTACT_CONFIG = {
   phoneLink: 'tel:+94701184914',
   whatsappLink: 'https://wa.me/94701184914?text=Hello%20ELIX%20Team%2C%20I%20have%20an%20inquiry%20regarding%202026-LIVE%20T-Shirts',
   emailLink: 'Contact@sheraxzy.com',
-  instagramLink: 'https://www.instagram.com',
+  instagramLink: 'https://www.instagram.com/elix.clothing',
   tiktokLink: 'https://www.tiktok.com',
   address: 'ELIX Studio, Malabe, Sri Lanka',
   hours: 'Monday – Saturday: 10:00 AM – 8:00 PM (IST)',
