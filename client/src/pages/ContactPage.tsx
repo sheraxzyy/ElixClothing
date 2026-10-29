@@ -262,7 +262,7 @@ const ContactPage: React.FC = () => {
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--accent-pink)', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '0.3rem' }}>
                 Channel 04 // Social Community
               </div>
-              <h3 style={{ fontSize: '1.3rem', marginBottom: '0.5rem' }}>Follow @elixofficial</h3>
+              <h3 style={{ fontSize: '1.3rem', marginBottom: '0.5rem' }}>Follow @elix.official</h3>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.25rem', lineHeight: 1.5 }}>
                 Tag us wearing your 2026-LIVE tees to be featured on our official feeds.
               </p>
