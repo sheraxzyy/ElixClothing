@@ -1,72 +1,56 @@
 import asyncHandler from 'express-async-handler';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import prisma from '../config/db.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const DATA_DIR = path.join(__dirname, '..', 'data');
-const MESSAGES_FILE = path.join(DATA_DIR, 'messages.json');
+const INITIAL_SEED_MESSAGES = [
+  {
+    name: 'Kavinda Perera',
+    email: 'kavinda.p@gmail.com',
+    phone: '+94 77 345 6789',
+    inquiryType: 'Size & Fit Advice',
+    orderNumber: '',
+    message: "Hi team, I am 5'11 and prefer a relaxed streetwear drape for the 220 GSM heavyweight tee. Should I go with size L or XL for an oversized boxy silhouette?",
+    status: 'read',
+  },
+  {
+    name: 'Sanduni De Silva',
+    email: 'sanduni.desilva@yahoo.com',
+    phone: '+94 71 890 1234',
+    inquiryType: 'Order Support',
+    orderNumber: 'ELX-84920',
+    message: 'Could you verify if my order #ELX-84920 has been handed over to Domex Courier? Looking forward to receiving the oversized black tee before Friday.',
+    status: 'read',
+  },
+  {
+    name: 'Nadeem Farook',
+    email: 'nadeem@urbanlk.com',
+    phone: '+94 70 555 4321',
+    inquiryType: 'Wholesale / Bulk',
+    orderNumber: '',
+    message: 'We are interested in stocking ELIX Colombo streetwear at our flagship boutique in Colombo 07. Do you provide wholesale catalogues and tiered volume pricing?',
+    status: 'read',
+  },
+];
 
-// Ensure data folder and messages.json exist
-const ensureStorage = () => {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-  }
-  if (!fs.existsSync(MESSAGES_FILE)) {
-    // Initial sample messages for the ELIX Colombo atelier desk
-    const initialMessages = [
-      {
-        id: 'msg_' + Date.now() + '_1',
-        name: 'Kavinda Perera',
-        email: 'kavinda.p@gmail.com',
-        phone: '+94 77 345 6789',
-        inquiryType: 'Size & Fit Advice',
-        orderNumber: '',
-        message: 'Hi team, I am 5\'11 and prefer a relaxed streetwear drape for the 220 GSM heavyweight tee. Should I go with size L or XL for an oversized boxy silhouette?',
-        status: 'unread',
-        createdAt: new Date(Date.now() - 3600000 * 4).toISOString(),
-      },
-      {
-        id: 'msg_' + Date.now() + '_2',
-        name: 'Sanduni De Silva',
-        email: 'sanduni.desilva@yahoo.com',
-        phone: '+94 71 890 1234',
-        inquiryType: 'Order Support',
-        orderNumber: 'ELX-84920',
-        message: 'Could you verify if my order #ELX-84920 has been handed over to Domex Courier? Looking forward to receiving the oversized black tee before Friday.',
-        status: 'unread',
-        createdAt: new Date(Date.now() - 3600000 * 18).toISOString(),
-      },
-      {
-        id: 'msg_' + Date.now() + '_3',
-        name: 'Nadeem Farook',
-        email: 'nadeem@urbanlk.com',
-        phone: '+94 70 555 4321',
-        inquiryType: 'Wholesale / Bulk',
-        orderNumber: '',
-        message: 'We are interested in stocking ELIX Colombo streetwear at our flagship boutique in Colombo 07. Do you provide wholesale catalogues and tiered volume pricing?',
-        status: 'read',
-        createdAt: new Date(Date.now() - 3600000 * 48).toISOString(),
-      },
-    ];
-    fs.writeFileSync(MESSAGES_FILE, JSON.stringify(initialMessages, null, 2), 'utf8');
-  }
-};
+// In-memory fallback if DB is unreachable
+let inMemoryFallback = [];
 
-const readMessages = () => {
-  ensureStorage();
+// Seed initial messages into DB if empty
+const seedInitialMessagesIfEmpty = async () => {
   try {
-    const raw = fs.readFileSync(MESSAGES_FILE, 'utf8');
-    return JSON.parse(raw);
-  } catch {
-    return [];
+    const count = await prisma.message.count();
+    if (count === 0) {
+      for (const msg of INITIAL_SEED_MESSAGES) {
+        await prisma.message.create({
+          data: {
+            id: 'msg_seed_' + Math.random().toString(36).substring(2, 9),
+            ...msg,
+          },
+        });
+      }
+    }
+  } catch (err) {
+    console.warn('Could not auto-seed messages into DB:', err.message);
   }
-};
-
-const writeMessages = (messages) => {
-  ensureStorage();
-  fs.writeFileSync(MESSAGES_FILE, JSON.stringify(messages, null, 2), 'utf8');
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -80,31 +64,65 @@ export const createMessage = asyncHandler(async (req, res) => {
     throw new Error('Name, email, and message are required.');
   }
 
-  const messages = readMessages();
-  const newMessage = {
-    id: 'msg_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
+  const generatedId = 'msg_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
+  const payload = {
+    id: generatedId,
     name: name.trim(),
-    email: email.trim(),
+    email: email.trim().toLowerCase(),
     phone: (phone || '').trim(),
     inquiryType: (inquiryType || 'General Inquiry').trim(),
     orderNumber: (orderNumber || '').trim(),
     message: message.trim(),
     status: 'unread',
-    createdAt: new Date().toISOString(),
   };
 
-  messages.unshift(newMessage);
-  writeMessages(messages);
-
-  res.status(201).json(newMessage);
+  try {
+    const newMessage = await prisma.message.create({
+      data: payload,
+    });
+    return res.status(201).json(newMessage);
+  } catch (dbErr) {
+    console.error('Failed to save message to PostgreSQL, saving to memory fallback:', dbErr.message);
+    const fallbackMessage = {
+      ...payload,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    inMemoryFallback.unshift(fallbackMessage);
+    return res.status(201).json(fallbackMessage);
+  }
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  GET /api/messages (Admin view)
 // ─────────────────────────────────────────────────────────────────────────────
 export const getMessages = asyncHandler(async (_req, res) => {
-  const messages = readMessages();
-  res.json(messages);
+  try {
+    await seedInitialMessagesIfEmpty();
+    const dbMessages = await prisma.message.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (inMemoryFallback.length > 0) {
+      const dbIds = new Set(dbMessages.map((m) => m.id));
+      const combined = [...dbMessages, ...inMemoryFallback.filter((m) => !dbIds.has(m.id))];
+      return res.json(combined);
+    }
+
+    return res.json(dbMessages);
+  } catch (dbErr) {
+    console.warn('Prisma message fetch failed, using fallback:', dbErr.message);
+    if (inMemoryFallback.length === 0) {
+      return res.json(
+        INITIAL_SEED_MESSAGES.map((m, idx) => ({
+          id: `seed_msg_${idx + 1}`,
+          ...m,
+          createdAt: new Date().toISOString(),
+        }))
+      );
+    }
+    return res.json(inMemoryFallback);
+  }
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -114,21 +132,22 @@ export const updateMessageStatus = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
 
-  const messages = readMessages();
-  const index = messages.findIndex((m) => m.id === id);
-
-  if (index === -1) {
+  try {
+    const updated = await prisma.message.update({
+      where: { id },
+      data: { status, updatedAt: new Date() },
+    });
+    return res.json(updated);
+  } catch (dbErr) {
+    const found = inMemoryFallback.find((m) => m.id === id);
+    if (found) {
+      found.status = status;
+      found.updatedAt = new Date().toISOString();
+      return res.json(found);
+    }
     res.status(404);
     throw new Error('Message not found.');
   }
-
-  if (status) {
-    messages[index].status = status;
-  }
-  messages[index].updatedAt = new Date().toISOString();
-
-  writeMessages(messages);
-  res.json(messages[index]);
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -136,14 +155,19 @@ export const updateMessageStatus = asyncHandler(async (req, res) => {
 // ─────────────────────────────────────────────────────────────────────────────
 export const deleteMessage = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const messages = readMessages();
-  const filtered = messages.filter((m) => m.id !== id);
 
-  if (filtered.length === messages.length) {
+  try {
+    await prisma.message.delete({
+      where: { id },
+    });
+    return res.json({ message: 'Customer inquiry removed successfully.' });
+  } catch (dbErr) {
+    const idx = inMemoryFallback.findIndex((m) => m.id === id);
+    if (idx !== -1) {
+      inMemoryFallback.splice(idx, 1);
+      return res.json({ message: 'Customer inquiry removed successfully.' });
+    }
     res.status(404);
     throw new Error('Message not found.');
   }
-
-  writeMessages(filtered);
-  res.json({ message: 'Customer inquiry removed successfully.' });
 });

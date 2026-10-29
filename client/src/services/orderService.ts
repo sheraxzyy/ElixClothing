@@ -148,16 +148,28 @@ const saveStoredOrders = (orders: OrderType[]) => {
 export const getOrders = async (): Promise<OrderType[]> => {
   try {
     const res = await api.get('/orders');
-    if (Array.isArray(res.data) && res.data.length > 0) {
-      // Merge backend orders with any local orders
+    if (Array.isArray(res.data)) {
       const local = getStoredOrders();
-      const backendIds = new Set(res.data.map((o: any) => o.id));
-      const merged = [...res.data, ...local.filter((o) => !backendIds.has(o.id))];
-      saveStoredOrders(merged);
-      return merged;
+      const demoIds = new Set(['ELX-92184', 'ELX-84920', 'ELX-73105']);
+
+      if (res.data.length > 0) {
+        const backendIds = new Set(res.data.map((o: any) => o.id));
+        // Keep real backend orders + any unsynced local user orders (excluding demo orders)
+        const unSyncedLocal = local.filter((o) => !backendIds.has(o.id) && !demoIds.has(o.id));
+        const merged = [...res.data, ...unSyncedLocal];
+        saveStoredOrders(merged);
+        return merged;
+      } else {
+        // Backend responded with empty array
+        const realLocal = local.filter((o) => !demoIds.has(o.id));
+        if (realLocal.length > 0) {
+          return realLocal;
+        }
+        return res.data;
+      }
     }
   } catch (err) {
-    console.warn('Orders API not accessible, using stored orders');
+    console.warn('Orders API not accessible, using stored orders:', err);
   }
   return getStoredOrders();
 };
@@ -170,6 +182,7 @@ export const createOrder = async (orderPayload: {
   deliveryFee: number;
   discountAmount?: number;
   totalPrice: number;
+  email?: string;
   user?: { id?: string; realName?: string; email: string };
 }): Promise<OrderType> => {
   const generatedId = 'ELX-' + Math.floor(10000 + Math.random() * 90000);
@@ -187,6 +200,7 @@ export const createOrder = async (orderPayload: {
     createdAt: new Date().toISOString(),
     orderItems: orderPayload.orderItems.map((item) => ({
       id: 'item_' + Math.random().toString(36).substring(2, 7),
+      productId: item.productId || item.id,
       name: item.name,
       image: item.image || item.images?.[0] || '/images/products/remorse-tee.jpg',
       price: Number(item.price),

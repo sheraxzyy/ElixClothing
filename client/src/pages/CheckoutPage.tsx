@@ -58,7 +58,8 @@ const CheckoutPage: React.FC = () => {
 
       const placedOrder = await orderService.createOrder({
         orderItems: cartItems.map((item) => ({
-          productId: item.id,
+          productId: item.productId || item.id,
+          slug: item.slug,
           name: item.name,
           image: item.images?.[0] || item.image || '/images/products/remorse-tee.jpg',
           price: Number(item.price),
@@ -77,6 +78,7 @@ const CheckoutPage: React.FC = () => {
         itemsPrice: subtotal,
         deliveryFee: shippingCost,
         totalPrice: finalTotal,
+        email,
         user: user
           ? {
               id: user.id,

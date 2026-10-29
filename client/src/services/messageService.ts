@@ -64,12 +64,12 @@ const saveStoredMessages = (messages: CustomerMessage[]) => {
 export const getMessages = async (): Promise<CustomerMessage[]> => {
   try {
     const res = await api.get('/messages');
-    if (Array.isArray(res.data) && res.data.length > 0) {
+    if (Array.isArray(res.data)) {
       saveStoredMessages(res.data);
       return res.data;
     }
   } catch (err) {
-    console.warn('API /messages unavailable, falling back to local store');
+    console.warn('API /messages unavailable, falling back to local store:', err);
   }
   return getStoredMessages();
 };

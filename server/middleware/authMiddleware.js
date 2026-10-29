@@ -74,3 +74,47 @@ export const admin = (req, res, next) => {
     throw new Error('Admin or Store Owner access required.');
   }
 };
+
+/**
+ * optionalProtect — verifies JWT if present and attaches req.user, but does not block if unauthenticated (for guest checkout)
+ */
+export const optionalProtect = asyncHandler(async (req, _res, next) => {
+  let token;
+
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
+    token = req.headers.authorization.split(' ')[1];
+  }
+
+  if (!token) {
+    req.user = null;
+    return next();
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.id },
+      select: {
+        id:       true,
+        realName: true,
+        username: true,
+        email:    true,
+        role:     true,
+        provider: true,
+        avatar:   true,
+        points:   true,
+        isDemo:   true,
+        phone:    true,
+      },
+    });
+    req.user = user || null;
+  } catch {
+    req.user = null;
+  }
+
+  next();
+});
+
