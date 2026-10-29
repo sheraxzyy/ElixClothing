@@ -144,6 +144,8 @@ export const deleteUser = asyncHandler(async (req, res) => {
     throw new Error('Store Owner and Admin accounts cannot be deleted.');
   }
 
+  // Delete user's orders first to cleanly satisfy foreign key constraints
+  await prisma.order.deleteMany({ where: { userId: id } });
   await prisma.user.delete({ where: { id } });
   res.json({ message: 'User deleted successfully.' });
 });
