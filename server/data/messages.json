@@ -1,0 +1,37 @@
+[
+  {
+    "id": "msg_1793293198399_1",
+    "name": "Kavinda Perera",
+    "email": "kavinda.p@gmail.com",
+    "phone": "+94 77 345 6789",
+    "inquiryType": "Size & Fit Advice",
+    "orderNumber": "",
+    "message": "Hi team, I am 5'11 and prefer a relaxed streetwear drape for the 220 GSM heavyweight tee. Should I go with size L or XL for an oversized boxy silhouette?",
+    "status": "read",
+    "createdAt": "2026-10-29T12:59:58.399Z",
+    "updatedAt": "2026-10-29T17:00:40.556Z"
+  },
+  {
+    "id": "msg_1793293198399_2",
+    "name": "Sanduni De Silva",
+    "email": "sanduni.desilva@yahoo.com",
+    "phone": "+94 71 890 1234",
+    "inquiryType": "Order Support",
+    "orderNumber": "ELX-84920",
+    "message": "Could you verify if my order #ELX-84920 has been handed over to Domex Courier? Looking forward to receiving the oversized black tee before Friday.",
+    "status": "read",
+    "createdAt": "2026-10-28T22:59:58.399Z",
+    "updatedAt": "2026-10-29T17:00:32.425Z"
+  },
+  {
+    "id": "msg_1793293198399_3",
+    "name": "Nadeem Farook",
+    "email": "nadeem@urbanlk.com",
+    "phone": "+94 70 555 4321",
+    "inquiryType": "Wholesale / Bulk",
+    "orderNumber": "",
+    "message": "We are interested in stocking ELIX Colombo streetwear at our flagship boutique in Colombo 07. Do you provide wholesale catalogues and tiered volume pricing?",
+    "status": "read",
+    "createdAt": "2026-10-27T16:59:58.399Z"
+  }
+]

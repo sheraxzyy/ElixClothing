@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useToast } from '../context/ToastContext';
+import * as messageService from '../services/messageService';
 import { MessageSquare, Phone, Mail, MapPin, Camera, Clock, PackageCheck, Send, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
 
 const CONTACT_CONFIG = {
@@ -112,7 +113,9 @@ const ContactPage: React.FC = () => {
     return errs;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length > 0) {
@@ -120,21 +123,41 @@ const ContactPage: React.FC = () => {
       return;
     }
 
-    setSubmitted(true);
-    addToast({
-      title: 'Message Dispatched',
-      message: 'Your inquiry has been sent to our Colombo Studio team.',
-      type: 'success',
-    });
+    setIsSubmitting(true);
+    try {
+      await messageService.sendMessage({
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
+        inquiryType: formData.inquiryType,
+        orderNumber: formData.orderNumber.trim(),
+        message: formData.message.trim(),
+      });
 
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      inquiryType: 'Order Support',
-      orderNumber: '',
-      message: '',
-    });
+      setSubmitted(true);
+      addToast({
+        title: 'Message Dispatched',
+        message: 'Your inquiry has been sent to our Colombo Studio team.',
+        type: 'success',
+      });
+
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        inquiryType: 'Order Support',
+        orderNumber: '',
+        message: '',
+      });
+    } catch (err: any) {
+      addToast({
+        title: 'Dispatch Failed',
+        message: 'Unable to deliver message. Please contact us directly via WhatsApp.',
+        type: 'error',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleOrderLookup = (e: React.FormEvent) => {

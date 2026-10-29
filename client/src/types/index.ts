@@ -91,3 +91,57 @@ export interface AuthContextType {
   updateUserRole?: (userId: string, role: string) => Promise<boolean>;
   setError: (err: string | null) => void;
 }
+
+export interface OrderItemType {
+  id?: string;
+  productId?: string;
+  name: string;
+  image: string;
+  price: number;
+  quantity: number;
+  size?: string;
+  color?: string;
+}
+
+export interface ShippingAddressType {
+  fullName: string;
+  phone: string;
+  street: string;
+  city: string;
+  postalCode: string;
+}
+
+export interface OrderType {
+  id: string;
+  userId?: string;
+  user?: {
+    id?: string;
+    realName?: string;
+    email: string;
+  };
+  paymentMethod: string;
+  itemsPrice: number;
+  deliveryFee: number;
+  discountAmount?: number;
+  totalPrice: number;
+  status: 'Pending' | 'Confirmed' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
+  isPaid?: boolean;
+  paidAt?: string;
+  deliveredAt?: string;
+  createdAt: string;
+  updatedAt?: string;
+  orderItems: OrderItemType[];
+  shippingAddress: ShippingAddressType;
+}
+
+export interface CustomerMessage {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  inquiryType: string;
+  orderNumber?: string;
+  message: string;
+  createdAt: string;
+  status: 'unread' | 'read' | 'replied';
+}

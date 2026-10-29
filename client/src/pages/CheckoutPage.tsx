@@ -4,6 +4,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { formatPrice } from '../services/productService';
+import * as orderService from '../services/orderService';
 import { ShieldCheck, Truck, CreditCard, Banknote, Zap, ArrowRight } from 'lucide-react';
 
 const CheckoutPage: React.FC = () => {
@@ -47,18 +48,64 @@ const CheckoutPage: React.FC = () => {
     e.preventDefault();
     setIsProcessing(true);
 
-    // Simulate order dispatch latency
-    await new Promise((res) => setTimeout(res, 1000));
+    try {
+      const paymentMethodLabel =
+        paymentMethod === 'cod'
+          ? 'Cash on Delivery'
+          : paymentMethod === 'card'
+          ? 'Credit / Debit Card'
+          : 'Mintpay 3x Installments';
 
-    clearCart();
-    setIsProcessing(false);
-    addToast({
-      title: 'Order Dispatched! 🎉',
-      message: `Thank you, ${fullName}! Your tracking number has been sent to ${email}.`,
-      type: 'success',
-      duration: 6000,
-    });
-    navigate('/shop');
+      const placedOrder = await orderService.createOrder({
+        orderItems: cartItems.map((item) => ({
+          productId: item.id,
+          name: item.name,
+          image: item.images?.[0] || item.image || '/images/products/remorse-tee.jpg',
+          price: Number(item.price),
+          quantity: Number(item.quantity),
+          size: item.size || 'M',
+          color: item.color || 'Standard',
+        })),
+        shippingAddress: {
+          fullName,
+          phone,
+          street: address,
+          city,
+          postalCode,
+        },
+        paymentMethod: paymentMethodLabel,
+        itemsPrice: subtotal,
+        deliveryFee: shippingCost,
+        totalPrice: finalTotal,
+        user: user
+          ? {
+              id: user.id,
+              realName: user.realName || user.name,
+              email: user.email,
+            }
+          : {
+              email,
+              realName: fullName,
+            },
+      });
+
+      clearCart();
+      setIsProcessing(false);
+      addToast({
+        title: 'Order Confirmed! 🎉',
+        message: `Order #${placedOrder.id} dispatched! Confirmation sent to ${email}.`,
+        type: 'success',
+        duration: 7000,
+      });
+      navigate('/shop');
+    } catch (err: any) {
+      setIsProcessing(false);
+      addToast({
+        title: 'Checkout Error',
+        message: err.message || 'Failed to place order. Please try again.',
+        type: 'error',
+      });
+    }
   };
 
   return (
