@@ -23,10 +23,22 @@ const app = express();
 
 app.use(express.json());
 
-// Enable flexible CORS so client can connect from Vite dev server on any port / host
+// Allow the Vite dev server locally and both production domains
+const ALLOWED_ORIGINS = [
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  'https://elixclothing.vercel.app',
+  'https://elixclothing.sheraxzy.com',
+];
+
 app.use(
   cors({
-    origin: true,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (curl, Postman, server-to-server)
+      if (!origin) return callback(null, true);
+      if (ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
+      callback(new Error(`CORS: origin '${origin}' not allowed`));
+    },
     credentials: true,
   })
 );
