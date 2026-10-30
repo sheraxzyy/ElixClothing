@@ -143,7 +143,7 @@ export const createOrder = asyncHandler(async (req, res) => {
 
     return {
       productId: validProd ? validProd.id : targetProductId,
-      name:      item.name || validProd?.name || 'ELIX Apparel',
+      name:      item.name || validProd?.name || 'SheXz Apparel',
       image:     item.image || '/images/products/remorse-tee.jpg',
       price:     Number(item.price) || 0,
       quantity:  Math.max(1, Math.round(Number(item.quantity) || 1)),

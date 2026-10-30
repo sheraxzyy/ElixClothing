@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect width="64" height="64" rx="14" fill="#080808"/>
+  <rect x="1" y="1" width="62" height="62" rx="13" fill="none" stroke="#222222" stroke-width="1.5"/>
+  <text x="32" y="42" font-family="'Cinzel', 'Outfit', 'Space Grotesk', sans-serif" font-weight="900" font-size="28" fill="#FFFFFF" text-anchor="middle" letter-spacing="1">S</text>
+  <circle cx="48" cy="20" r="3" fill="#888888"/>
+</svg>

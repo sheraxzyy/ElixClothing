@@ -1,7 +1,7 @@
 {
-  "name": "elix-server",
+  "name": "shexz-server",
   "version": "1.0.0",
-  "description": "ELIX backend API — PostgreSQL + Prisma",
+  "description": "SheXz backend API — PostgreSQL + Prisma",
   "type": "module",
   "main": "server.js",
   "scripts": {

@@ -13,7 +13,7 @@ const Footer: React.FC = () => {
     setSubscribed(true);
     addToast({
       title: 'VIP Access Granted!',
-      message: 'Use code ELIX15 at checkout for 15% off your first order.',
+      message: 'Use code SHEXZ15 at checkout for 15% off your first order.',
       type: 'success',
     });
     setNewsletterEmail('');
@@ -29,14 +29,14 @@ const Footer: React.FC = () => {
         <div className="footer-grid">
           {/* Brand & Newsletter Column */}
           <div className="footer-brand">
-            <h3 className="footer-brand-title">ELIX</h3>
+            <h3 className="footer-brand-title">SheXz</h3>
             <p className="footer-brand-desc">
               Engineered in Sri Lanka. Bold oversized silhouettes, 220 GSM heavyweight combed cotton, and unapologetic streetwear attitude.
             </p>
 
             <form onSubmit={handleNewsletter} style={{ marginTop: '1.5rem', maxWidth: '360px' }}>
               <div style={{ fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.5rem', color: '#fff', letterSpacing: '0.04em' }}>
-                JOIN THE ELIX VIP CLUB
+                JOIN THE SheXz VIP CLUB
               </div>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <input
@@ -100,7 +100,7 @@ const Footer: React.FC = () => {
         {/* Bottom Bar */}
         <div className="footer-bottom">
           <div>
-            © {new Date().getFullYear()} ELIX Streetwear Atelier. All rights reserved.
+            © {new Date().getFullYear()} SheXz Streetwear Atelier. All rights reserved.
           </div>
           <div className="footer-badges">
             <span className="footer-badge-pill">🔒 SSL Secured</span>

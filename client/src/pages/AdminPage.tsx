@@ -578,7 +578,7 @@ const AdminPage: React.FC = () => {
       if (res) {
         addToast({
           title: 'Admin Clearance Granted',
-          message: 'Welcome to the ELIX Atelier Console.',
+          message: 'Welcome to the SheXz Atelier Console.',
           type: 'success',
         });
       }
@@ -624,7 +624,7 @@ const AdminPage: React.FC = () => {
             <Lock size={36} color="var(--accent-purple)" />
           </div>
           <div className="admin-lock-badge">STRICTLY RESTRICTED</div>
-          <h2 className="admin-lock-title">ELIX Atelier Security Gate</h2>
+          <h2 className="admin-lock-title">SheXz Atelier Security Gate</h2>
           <p className="admin-lock-sub">
             This administration console is confidential and accessible solely by the authorized store owner and admin accounts.
           </p>
@@ -766,7 +766,7 @@ const AdminPage: React.FC = () => {
       <header className="admin-header">
         <div className="admin-header-left">
           <Link to="/" className="brand-link" style={{ fontSize: '1.3rem', letterSpacing: '0.15em' }}>
-            <span>ELIX</span>
+            <span>SheXz</span>
             <span className="brand-badge" style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.2), rgba(6,182,212,0.2))', border: '1px solid rgba(139,92,246,0.3)', color: '#fff' }}>
               ATELIER CONSOLE
             </span>
@@ -981,7 +981,7 @@ const AdminPage: React.FC = () => {
                   Atelier Executive Overview
                 </h1>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                  Real-time command center for ELIX streetwear orders, customer messages, and drops.
+                  Real-time command center for SheXz streetwear orders, customer messages, and drops.
                 </p>
               </div>
 
@@ -1342,7 +1342,7 @@ const AdminPage: React.FC = () => {
                   Customer Messages & Inquiries
                 </h1>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                  Direct inquiries received from the ELIX Colombo studio contact desk.
+                  Direct inquiries received from the SheXz Colombo studio contact desk.
                 </p>
               </div>
 
@@ -1733,7 +1733,7 @@ const AdminPage: React.FC = () => {
                     filteredUsers.map((u) => (
                       <tr key={u.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', fontSize: '0.9rem' }}>
                         <td style={{ padding: '1rem', color: '#fff', fontWeight: 600 }}>
-                          {u.realName || u.name || 'ELIX Member'}
+                          {u.realName || u.name || 'SheXz Member'}
                         </td>
                         <td style={{ padding: '1rem', color: 'var(--accent-cyan)' }}>
                           @{u.username || 'user'}
@@ -1876,7 +1876,7 @@ const AdminPage: React.FC = () => {
                   📞 {viewingOrder.shippingAddress?.phone}
                   {viewingOrder.shippingAddress?.phone && (
                     <a
-                      href={`https://wa.me/${viewingOrder.shippingAddress.phone.replace(/[^0-9]/g, '')}?text=Hello%20${encodeURIComponent(viewingOrder.shippingAddress.fullName)}%2C%20regarding%20your%20ELIX%20Order%20%23${viewingOrder.id}`}
+                      href={`https://wa.me/${viewingOrder.shippingAddress.phone.replace(/[^0-9]/g, '')}?text=Hello%20${encodeURIComponent(viewingOrder.shippingAddress.fullName)}%2C%20regarding%20your%20SheXz%20Order%20%23${viewingOrder.id}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{ color: '#34d399', marginLeft: '0.5rem', textDecoration: 'underline' }}
@@ -2049,7 +2049,7 @@ const AdminPage: React.FC = () => {
             {/* Action Buttons */}
             <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
               <a
-                href={`mailto:${viewingMessage.email}?subject=${encodeURIComponent(`ELIX Colombo Studio Support: Re: ${viewingMessage.inquiryType}`)}&body=${encodeURIComponent(`Hi ${viewingMessage.name},\n\nThank you for reaching out to ELIX.\n\n`)}`}
+                href={`mailto:${viewingMessage.email}?subject=${encodeURIComponent(`SheXz Colombo Studio Support: Re: ${viewingMessage.inquiryType}`)}&body=${encodeURIComponent(`Hi ${viewingMessage.name},\n\nThank you for reaching out to SheXz.\n\n`)}`}
                 className="btn btn-glow luxury-hover"
                 style={{ flex: 1, textAlign: 'center', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
               >
@@ -2058,7 +2058,7 @@ const AdminPage: React.FC = () => {
 
               {viewingMessage.phone && (
                 <a
-                  href={`https://wa.me/${viewingMessage.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hello ${viewingMessage.name}, this is the ELIX Colombo Atelier team responding to your inquiry regarding ${viewingMessage.inquiryType}.`)}`}
+                  href={`https://wa.me/${viewingMessage.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hello ${viewingMessage.name}, this is the SheXz Colombo Atelier team responding to your inquiry regarding ${viewingMessage.inquiryType}.`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn btn-secondary luxury-hover"
@@ -2135,7 +2135,7 @@ const AdminPage: React.FC = () => {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. ELIX Oversized Cyber Graphic"
+                  placeholder="e.g. SheXz Oversized Cyber Graphic"
                   value={productForm.name}
                   onChange={(e) => setProductForm({ ...productForm, name: e.target.value })}
                   className="form-control"

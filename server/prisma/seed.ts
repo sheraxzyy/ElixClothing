@@ -1,5 +1,5 @@
 /**
- * ELIX — Prisma Seed (TypeScript)
+ * SheXz — Prisma Seed (TypeScript)
  *
  * Run:  npx ts-node --esm prisma/seed.ts
  *   or: npm run seed   (after adding script to package.json)
@@ -37,7 +37,7 @@ const ADMIN_USERS = [
     points:    100000,
   },
   {
-    realName: 'ELIX Admin',
+    realName: 'SheXz Admin',
     username:  'elix_admin',
     email:     'admin@elix.lk',
     role:      Role.admin,
@@ -58,7 +58,7 @@ const PRODUCTS: Array<{
   sizes: Array<{ size: Size; stock: number }>;
 }> = [
   {
-    name:        'ELIX Oversized 01',
+    name:        'SheXz Oversized 01',
     description: 'A premium oversized streetwear tee with bold minimal branding and relaxed island-ready fit.',
     imageUrl:    '/assets/placeholder-1.jpg',
     price:       4200,
@@ -76,7 +76,7 @@ const PRODUCTS: Array<{
     ],
   },
   {
-    name:        'ELIX Shadow',
+    name:        'SheXz Shadow',
     description: 'Premium oversized black tee with subtle tonal print, elevated for a refined street edit.',
     imageUrl:    '/assets/placeholder-2.jpg',
     price:       4500,
@@ -93,7 +93,7 @@ const PRODUCTS: Array<{
     ],
   },
   {
-    name:        'ELIX Core',
+    name:        'SheXz Core',
     description: 'A refined oversized essential crafted for premium comfort and statement layering.',
     imageUrl:    '/assets/placeholder-3.jpg',
     price:       3900,
@@ -140,7 +140,7 @@ const DISCOUNTS: Array<{
 // ─── main ────────────────────────────────────────────────────────────────────
 
 async function main() {
-  console.log('🌱  Starting ELIX seed...');
+  console.log('🌱  Starting SheXz seed...');
 
   // ── 1. Admin / Owner users ──────────────────────────────────────────────────
   const hashedPassword = await bcrypt.hash(MASTER_PASSWORD, 12);

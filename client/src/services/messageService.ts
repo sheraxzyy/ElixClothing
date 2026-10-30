@@ -1,7 +1,7 @@
 import api from './api';
 import { CustomerMessage } from '../types';
 
-const STORAGE_KEY = 'elix_customer_messages';
+const STORAGE_KEY = 'shexz_customer_messages';
 
 const INITIAL_DEMO_MESSAGES: CustomerMessage[] = [
   {
@@ -33,7 +33,7 @@ const INITIAL_DEMO_MESSAGES: CustomerMessage[] = [
     phone: '+94 70 555 4321',
     inquiryType: 'Wholesale / Bulk',
     orderNumber: '',
-    message: 'We are interested in stocking ELIX Colombo streetwear at our flagship boutique in Colombo 07. Do you provide wholesale catalogues and tiered volume pricing?',
+    message: 'We are interested in stocking SheXz Colombo streetwear at our flagship boutique in Colombo 07. Do you provide wholesale catalogues and tiered volume pricing?',
     status: 'read',
     createdAt: new Date(Date.now() - 3600000 * 42).toISOString(),
   },

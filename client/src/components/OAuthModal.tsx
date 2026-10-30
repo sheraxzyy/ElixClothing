@@ -293,9 +293,9 @@ export const OAuthModal: React.FC<OAuthModalProps> = ({ isOpen, provider, onClos
           </h3>
 
           <p style={{ color: '#94a3b8', fontSize: '0.88rem', margin: 0, lineHeight: 1.4 }}>
-            {currentProvider === 'google' && 'Continue to ELIX Streetwear Atelier to access drops and member rewards.'}
+            {currentProvider === 'google' && 'Continue to SheXz Streetwear Atelier to access drops and member rewards.'}
             {currentProvider === 'apple' && 'Use your Apple ID to sign in securely with Touch ID, Face ID or Passkey.'}
-            {currentProvider === 'github' && 'Authorize ELIX to authenticate your developer credentials.'}
+            {currentProvider === 'github' && 'Authorize SheXz to authenticate your developer credentials.'}
           </p>
         </div>
 

@@ -9,8 +9,8 @@ dotenv.config();
 
 const products = [
   {
-    name: 'ELIX Oversized 01',
-    slug: 'elix-oversized-01',
+    name: 'SheXz Oversized 01',
+    slug: 'shexz-oversized-01',
     description: 'A premium oversized streetwear tee with bold minimal branding and relaxed island-ready fit.',
     category: 'T-Shirts',
     price: 4200,
@@ -28,8 +28,8 @@ const products = [
     isBestSeller: true,
   },
   {
-    name: 'ELIX Shadow',
-    slug: 'elix-shadow',
+    name: 'SheXz Shadow',
+    slug: 'shexz-shadow',
     description: 'Premium oversized black tee with subtle tonal print, elevated for a refined street edit.',
     category: 'T-Shirts',
     price: 4500,
@@ -46,8 +46,8 @@ const products = [
     isBestSeller: true,
   },
   {
-    name: 'ELIX Core',
-    slug: 'elix-core',
+    name: 'SheXz Core',
+    slug: 'shexz-core',
     description: 'A refined oversized essential crafted for premium comfort and statement layering.',
     category: 'T-Shirts',
     price: 3900,
@@ -112,7 +112,7 @@ const importData = async () => {
         points: 100000,
       },
       {
-        name: 'ELIX Admin',
+        name: 'SheXz Admin',
         email: 'admin@elix.lk',
         password: masterPassword,
         role: 'admin',

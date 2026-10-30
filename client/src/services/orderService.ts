@@ -1,7 +1,7 @@
 import api from './api';
 import { OrderType } from '../types';
 
-const STORAGE_KEY = 'elix_store_orders';
+const STORAGE_KEY = 'shexz_store_orders';
 
 const INITIAL_DEMO_ORDERS: OrderType[] = [
   {
@@ -23,7 +23,7 @@ const INITIAL_DEMO_ORDERS: OrderType[] = [
     orderItems: [
       {
         id: 'item_1',
-        name: 'ELIX "REMORSE" Oversized Heavyweight Tee',
+        name: 'SheXz "REMORSE" Oversized Heavyweight Tee',
         image: '/images/products/remorse-tee.jpg',
         price: 3750,
         quantity: 2,
@@ -59,7 +59,7 @@ const INITIAL_DEMO_ORDERS: OrderType[] = [
     orderItems: [
       {
         id: 'item_2',
-        name: 'ELIX "ANOMALY" 220 GSM Cyber Graphic',
+        name: 'SheXz "ANOMALY" 220 GSM Cyber Graphic',
         image: '/images/products/anomaly-tee.jpg',
         price: 4200,
         quantity: 1,
@@ -96,7 +96,7 @@ const INITIAL_DEMO_ORDERS: OrderType[] = [
     orderItems: [
       {
         id: 'item_3',
-        name: 'ELIX "NOSTALGIA" Boxy Fit Heavyweight Tee',
+        name: 'SheXz "NOSTALGIA" Boxy Fit Heavyweight Tee',
         image: '/images/products/nostalgia-tee.jpg',
         price: 3750,
         quantity: 1,
@@ -105,7 +105,7 @@ const INITIAL_DEMO_ORDERS: OrderType[] = [
       },
       {
         id: 'item_4',
-        name: 'ELIX "CYBERNETIC" Distressed Graphic',
+        name: 'SheXz "CYBERNETIC" Distressed Graphic',
         image: '/images/products/cyber-tee.jpg',
         price: 3750,
         quantity: 2,

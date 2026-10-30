@@ -10,13 +10,13 @@ const AboutPage: React.FC = () => {
         <div className="container">
           <div style={{ maxWidth: '780px' }} className="animate-fade-in-up">
             <div style={{ fontFamily: 'var(--font-mono)', color: 'var(--accent-purple)', fontSize: '0.82rem', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '0.6rem' }}>
-              The ELIX Atelier
+              The SheXz Atelier
             </div>
             <h1 className="page-heading">
               BORN ON THE ISLAND. <span className="gradient-text luxury-shimmer">ENGINEERED FOR THE WORLD.</span>
             </h1>
             <p className="text-muted" style={{ fontSize: '1.15rem', lineHeight: 1.8 }}>
-              ELIX was founded with a singular conviction: streetwear t-shirts should never feel flimsy. We set out to create the island’s most uncompromising oversized garments—combining 220 GSM custom-knit combed cotton with architected boxy silhouettes.
+              SheXz was founded with a singular conviction: streetwear t-shirts should never feel flimsy. We set out to create the island’s most uncompromising oversized garments—combining 220 GSM custom-knit combed cotton with architected boxy silhouettes.
             </p>
           </div>
         </div>
@@ -52,7 +52,7 @@ const AboutPage: React.FC = () => {
               </div>
               <h3 style={{ fontSize: '1.4rem', marginBottom: '0.6rem' }}>2026-Live Limited Releases</h3>
               <p style={{ color: 'var(--text-muted)', lineHeight: 1.7 }}>
-                To preserve rarity and ensure zero excess waste, every ELIX release is strictly limited. All 2026-LIVE graphic drops feature flat pricing at LKR 3,000.
+                To preserve rarity and ensure zero excess waste, every SheXz release is strictly limited. All 2026-LIVE graphic drops feature flat pricing at LKR 3,000.
               </p>
             </div>
           </div>

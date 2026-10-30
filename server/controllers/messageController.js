@@ -26,7 +26,7 @@ const INITIAL_SEED_MESSAGES = [
     phone: '+94 70 555 4321',
     inquiryType: 'Wholesale / Bulk',
     orderNumber: '',
-    message: 'We are interested in stocking ELIX Colombo streetwear at our flagship boutique in Colombo 07. Do you provide wholesale catalogues and tiered volume pricing?',
+    message: 'We are interested in stocking SheXz Colombo streetwear at our flagship boutique in Colombo 07. Do you provide wholesale catalogues and tiered volume pricing?',
     status: 'read',
   },
 ];

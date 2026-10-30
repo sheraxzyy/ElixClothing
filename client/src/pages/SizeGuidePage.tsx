@@ -33,7 +33,7 @@ const SizeGuidePage: React.FC = () => {
             </div>
             <h1 className="page-heading">OVERSIZED FIT GUIDE</h1>
             <p className="text-muted" style={{ fontSize: '1.05rem', lineHeight: 1.8 }}>
-              ELIX tees are custom engineered with an intentional, boxy oversized drape. Use our chart below to pick your ideal street silhouette.
+              SheXz tees are custom engineered with an intentional, boxy oversized drape. Use our chart below to pick your ideal street silhouette.
             </p>
           </div>
 

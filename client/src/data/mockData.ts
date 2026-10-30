@@ -2,8 +2,8 @@ import { Product } from '../types';
 
 export const products: Product[] = [
   {
-    id: 'elix-remorse-tee',
-    slug: 'elix-remorse-tee',
+    id: 'shexz-remorse-tee',
+    slug: 'shexz-remorse-tee',
     name: 'REMORSE Graphic Tee',
     category: 'T-Shirts',
     description: 'Dark aesthetic oversized streetwear t-shirt featuring iconic REMORSE typographic nun art print on 220 GSM heavyweight combed cotton with relaxed boxy drape.',
@@ -19,8 +19,8 @@ export const products: Product[] = [
     bestSeller: true,
   },
   {
-    id: 'elix-arachnid-tee',
-    slug: 'elix-arachnid-tee',
+    id: 'shexz-arachnid-tee',
+    slug: 'shexz-arachnid-tee',
     name: 'ARACHNID Tribal Spider Tee',
     category: 'T-Shirts',
     description: 'Crisp white heavyweight oversized tee featuring sharp back tribal arachnid iconography with crimson accents, 220 GSM premium cotton.',
@@ -36,8 +36,8 @@ export const products: Product[] = [
     bestSeller: false,
   },
   {
-    id: 'elix-sinner-tee',
-    slug: 'elix-sinner-tee',
+    id: 'shexz-sinner-tee',
+    slug: 'shexz-sinner-tee',
     name: 'SINNER Gothic Angel Tee',
     category: 'T-Shirts',
     description: 'Gothic back-print oversized tee with dramatic winged angel and flames motif, 220 GSM premium heavyweight weave built to hold structure.',
@@ -53,8 +53,8 @@ export const products: Product[] = [
     bestSeller: true,
   },
   {
-    id: 'elix-black-ink-syndicate-tee',
-    slug: 'elix-black-ink-syndicate-tee',
+    id: 'shexz-black-ink-syndicate-tee',
+    slug: 'shexz-black-ink-syndicate-tee',
     name: 'BLACK INK SYNDICATE Tee',
     category: 'T-Shirts',
     description: 'Vintage tattoo-inspired skull and crimson roses graphic back design on jet black 220 GSM heavyweight combed cotton.',
@@ -70,8 +70,8 @@ export const products: Product[] = [
     bestSeller: true,
   },
   {
-    id: 'elix-viper-skull-tee',
-    slug: 'elix-viper-skull-tee',
+    id: 'shexz-viper-skull-tee',
+    slug: 'shexz-viper-skull-tee',
     name: 'VIPER SKULL Graphic Tee',
     category: 'T-Shirts',
     description: 'High-contrast venomous green viper and stippled skull graphic on pitch black 220 GSM premium heavyweight cotton t-shirt.',

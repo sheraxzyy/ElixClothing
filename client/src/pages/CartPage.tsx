@@ -27,9 +27,9 @@ const CartPage: React.FC = () => {
     e.preventDefault();
     if (!couponCode.trim()) return;
 
-    if (couponCode.trim().toUpperCase() === 'ELIX15') {
+    if (couponCode.trim().toUpperCase() === 'SHEXZ15') {
       setDiscountPercent(15);
-      setAppliedCoupon('ELIX15');
+      setAppliedCoupon('SHEXZ15');
       addToast({
         title: 'Coupon Applied!',
         message: '15% VIP discount applied to your order.',
@@ -39,7 +39,7 @@ const CartPage: React.FC = () => {
     } else {
       addToast({
         title: 'Invalid Coupon',
-        message: 'Try using code "ELIX15" for 15% off.',
+        message: 'Try using code "SHEXZ15" for 15% off.',
         type: 'error',
       });
     }
@@ -159,7 +159,7 @@ const CartPage: React.FC = () => {
               <form onSubmit={handleApplyCoupon} className="coupon-input-row">
                 <input
                   type="text"
-                  placeholder="Promo code (e.g. ELIX15)"
+                  placeholder="Promo code (e.g. SHEXZ15)"
                   value={couponCode}
                   onChange={(e) => setCouponCode(e.target.value)}
                   className="form-control"

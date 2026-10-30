@@ -10,7 +10,7 @@ const api = axios.create({
 
 // Attach JWT token if stored in session
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const token = localStorage.getItem('elixToken') || sessionStorage.getItem('elixToken');
+  const token = localStorage.getItem('shexzToken') || sessionStorage.getItem('shexzToken');
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
   }

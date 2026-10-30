@@ -24,8 +24,8 @@ const WelcomeAuthModal: React.FC = () => {
   const [selectedProvider, setSelectedProvider] = useState<string>('google');
 
   useEffect(() => {
-    const hasSeenPrompt = localStorage.getItem('elix_auth_prompt_dismissed');
-    const storedUser = localStorage.getItem('elixUser') || sessionStorage.getItem('elixUser');
+    const hasSeenPrompt = localStorage.getItem('shexz_auth_prompt_dismissed');
+    const storedUser = localStorage.getItem('shexzUser') || sessionStorage.getItem('shexzUser');
 
     if (!hasSeenPrompt && !storedUser && !user) {
       const timer = setTimeout(() => {
@@ -37,7 +37,7 @@ const WelcomeAuthModal: React.FC = () => {
 
   const handleDismiss = () => {
     setIsOpen(false);
-    localStorage.setItem('elix_auth_prompt_dismissed', 'true');
+        localStorage.setItem('shexz_auth_prompt_dismissed', 'true');
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,7 +59,7 @@ const WelcomeAuthModal: React.FC = () => {
   };
 
   const handleSocialSuccess = () => {
-    localStorage.setItem('elix_auth_prompt_dismissed', 'true');
+        localStorage.setItem('shexz_auth_prompt_dismissed', 'true');
     setIsOpen(false);
   };
 
@@ -85,7 +85,7 @@ const WelcomeAuthModal: React.FC = () => {
           message: `Signed in as ${loggedUser.name || loggedUser.username}!`,
           type: 'success',
         });
-        localStorage.setItem('elix_auth_prompt_dismissed', 'true');
+            localStorage.setItem('shexz_auth_prompt_dismissed', 'true');
         setIsOpen(false);
       }
     } else {
@@ -122,10 +122,10 @@ const WelcomeAuthModal: React.FC = () => {
       if (newUser) {
         addToast({
           title: 'Account Created',
-          message: `Welcome to ELIX, ${newUser.name || newUser.username}! (+200 pts)`,
+          message: `Welcome to SheXz, ${newUser.name || newUser.username}! (+200 pts)`,
           type: 'success',
         });
-        localStorage.setItem('elix_auth_prompt_dismissed', 'true');
+            localStorage.setItem('shexz_auth_prompt_dismissed', 'true');
         setIsOpen(false);
       }
     }
@@ -170,11 +170,11 @@ const WelcomeAuthModal: React.FC = () => {
           {/* Header */}
           <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.5rem' }}>
-              <span style={{ fontSize: '1.25rem', fontWeight: 900, letterSpacing: '0.2em', fontFamily: 'var(--font-display)' }}>ELIX</span>
+              <span style={{ fontSize: '1.25rem', fontWeight: 900, letterSpacing: '0.2em', fontFamily: 'var(--font-display)' }}>SheXz</span>
               <span className="brand-badge">MEMBERS CLUB</span>
             </div>
             <h3 style={{ fontSize: '1.2rem', marginBottom: '0.25rem', fontFamily: 'var(--font-display)' }}>
-              {activeTab === 'register' ? 'Join the ELIX Community' : 'Welcome Back'}
+              {activeTab === 'register' ? 'Join the SheXz Community' : 'Welcome Back'}
             </h3>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
               {activeTab === 'register'

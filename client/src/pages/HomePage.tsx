@@ -62,7 +62,7 @@ const HomePage: React.FC = () => {
   const featuredHeroProduct = products[0] || {
     name: 'REMORSE Graphic Tee',
     price: 3000,
-    slug: 'elix-remorse-tee',
+    slug: 'shexz-remorse-tee',
     images: ['/images/products/remorse-tee.jpg'],
   };
 
@@ -89,7 +89,7 @@ const HomePage: React.FC = () => {
               </h1>
 
               <p className="hero-desc">
-                ELIX redefines island streetwear with uncompromising 220 GSM heavyweight combed cotton t-shirts, tailored oversized silhouettes, and high-impact graphic art crafted for the bold.
+                SheXz redefines island streetwear with uncompromising 220 GSM heavyweight combed cotton t-shirts, tailored oversized silhouettes, and high-impact graphic art crafted for the bold.
               </p>
 
               <div className="hero-cta-group">
@@ -123,7 +123,7 @@ const HomePage: React.FC = () => {
               <div className="hero-image-wrap luxury-glow-card">
                 <img
                   src={heroImageSrc}
-                  alt="ELIX 2026-Live Exclusive Streetwear Tee"
+                  alt="SheXz 2026-Live Exclusive Streetwear Tee"
                 />
                 <div className="hero-image-gradient" />
                 <div className="hero-card-floating-badge">
@@ -137,7 +137,7 @@ const HomePage: React.FC = () => {
                     <div className="hero-card-price">{formatPrice(featuredHeroProduct.price || 3000)}</div>
                   </div>
                   <Link
-                    to={`/product/${featuredHeroProduct.slug || 'elix-remorse-tee'}`}
+                    to={`/product/${featuredHeroProduct.slug || 'shexz-remorse-tee'}`}
                     className="btn btn-primary btn-sm luxury-hover"
                   >
                     View Drop
@@ -283,7 +283,7 @@ const HomePage: React.FC = () => {
                   220 GSM COMBED COTTON. CRAFTED TO DRAPE.
                 </h2>
                 <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8 }}>
-                  Every ELIX graphic t-shirt starts with custom-milled 220 GSM 100% combed cotton. We engineer drop-shoulder seams and calibrated boxy silhouettes that hold their bold form wash after wash in island weather.
+                  Every SheXz graphic t-shirt starts with custom-milled 220 GSM 100% combed cotton. We engineer drop-shoulder seams and calibrated boxy silhouettes that hold their bold form wash after wash in island weather.
                 </p>
 
                 <div className="spec-list">
@@ -400,7 +400,7 @@ const HomePage: React.FC = () => {
               GET ACCESS TO 2026-LIVE DROPS
             </h2>
             <p style={{ color: 'var(--text-muted)', maxWidth: '36rem', margin: '0 auto 2rem', fontSize: '1.05rem', lineHeight: 1.8 }}>
-              Sign in or create your ELIX account to unlock secret drops, accumulate reward points, and checkout faster.
+              Sign in or create your SheXz account to unlock secret drops, accumulate reward points, and checkout faster.
             </p>
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
               <Link to="/login" className="btn btn-glow btn-lg luxury-hover">

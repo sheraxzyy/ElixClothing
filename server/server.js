@@ -45,7 +45,7 @@ app.use(
 );
 
 app.get('/', (_req, res) => {
-  res.json({ message: 'ELIX API is running with PostgreSQL & Prisma.' });
+  res.json({ message: 'SheXz API is running with PostgreSQL & Prisma.' });
 });
 
 // ── Keep-alive / health check (hit by Vercel cron every 5 min) ───────────────
@@ -99,7 +99,7 @@ app.use((err, _req, res, _next) => {
 const PORT = process.env.PORT || 5000;
 if (!process.env.VERCEL) {
   app.listen(PORT, () => {
-    console.log(`🚀 ELIX Server running on port ${PORT}`);
+    console.log(`🚀 SheXz Server running on port ${PORT}`);
   });
 }
 

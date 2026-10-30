@@ -50,7 +50,7 @@ const RegisterPage: React.FC = () => {
 
     if (user) {
       addToast({
-        title: 'Welcome to ELIX',
+        title: 'Welcome to SheXz',
         message: `Your account has been saved to the database, ${user.name || user.username}! (+200 pts)`,
         type: 'success',
       });
@@ -80,7 +80,7 @@ const RegisterPage: React.FC = () => {
         <div className="auth-brand-side">
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '2rem' }}>
-              <span style={{ fontSize: '1.4rem', fontWeight: 900, letterSpacing: '0.2em', fontFamily: 'var(--font-display)' }}>ELIX</span>
+              <span style={{ fontSize: '1.4rem', fontWeight: 900, letterSpacing: '0.2em', fontFamily: 'var(--font-display)' }}>SheXz</span>
               <span className="brand-badge">MEMBERS CLUB</span>
             </div>
             <div className="auth-brand-quote">
@@ -134,7 +134,7 @@ const RegisterPage: React.FC = () => {
             </button>
           </div>
 
-          <h1 className="auth-form-title">Join ELIX</h1>
+          <h1 className="auth-form-title">Join SheXz</h1>
           <p className="auth-form-subtitle">
             Create your account directly stored in our PostgreSQL database.
           </p>
@@ -253,7 +253,7 @@ const RegisterPage: React.FC = () => {
                   onChange={(e) => setAgreeTerms(e.target.checked)}
                   required
                 />
-                <span>I agree to the ELIX terms & privacy policy</span>
+                <span>I agree to the SheXz terms & privacy policy</span>
               </label>
             </div>
 

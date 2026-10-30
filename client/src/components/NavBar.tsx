@@ -83,7 +83,7 @@ const NavBar: React.FC = () => {
         <div className="container header-row">
           {/* Brand Logo with Luxury Font */}
           <Link to="/" className="brand-link group">
-            <span className="brand-logo-text">ELIX</span>
+            <span className="brand-logo-text">SheXz</span>
             <span className="brand-badge">2026</span>
           </Link>
 
@@ -167,7 +167,7 @@ const NavBar: React.FC = () => {
                   <div className="user-dropdown-popover animate-fade-in-down">
                     <div className="user-dropdown-header">
                       <div className="user-dropdown-name">{user.name}</div>
-                      <div className="user-dropdown-role">{user.role || 'ELIX Member'}</div>
+                      <div className="user-dropdown-role">{user.role || 'SheXz Member'}</div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
                         {user.points ? `⭐ ${user.points} Reward Points` : user.email}
                       </div>
@@ -234,7 +234,7 @@ const NavBar: React.FC = () => {
                   {/* Top Branding Section */}
                   <div className="dots-menu-header">
                     <div>
-                      <div className="dots-menu-title">ELIX</div>
+                      <div className="dots-menu-title">SheXz</div>
                       <div className="dots-menu-sub">STREETWEAR ATELIER</div>
                     </div>
                     <span className="dots-edition-badge">2026-LIVE</span>
@@ -270,7 +270,7 @@ const NavBar: React.FC = () => {
                       onClick={() => setDotsMenuOpen(false)}
                     >
                       <span className="dots-link-label">
-                        <Sparkles size={16} className="dots-link-icon" /> About ELIX
+                        <Sparkles size={16} className="dots-link-icon" /> About SheXz
                       </span>
                       <span className="dots-link-arrow">→</span>
                     </Link>
@@ -342,7 +342,7 @@ const NavBar: React.FC = () => {
                           />
                           <div className="dots-user-text">
                             <div className="dots-user-name">{user.name}</div>
-                            <div className="dots-user-role">{user.role || 'ELIX Member'}</div>
+                            <div className="dots-user-role">{user.role || 'SheXz Member'}</div>
                             {user.points && (
                               <div className="dots-user-points">⭐ {user.points} pts</div>
                             )}

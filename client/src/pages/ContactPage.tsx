@@ -7,15 +7,15 @@ const CONTACT_CONFIG = {
   phoneLabel: '+94 70 118 4914',
   whatsappNumber: '+94771234567',
   email: 'Contact@sheraxzy.com',
-  pressEmail: 'studio@elix.lk',
-  instagramHandle: '@elix.official',
-  tiktokHandle: '@elix.official',
+  pressEmail: 'studio@shexz.lk',
+  instagramHandle: '@shexz.official',
+  tiktokHandle: '@shexz.official',
   phoneLink: 'tel:+94701184914',
-  whatsappLink: 'https://wa.me/94701184914?text=Hello%20ELIX%20Team%2C%20I%20have%20an%20inquiry%20regarding%202026-LIVE%20T-Shirts',
+  whatsappLink: 'https://wa.me/94701184914?text=Hello%20SheXz%20Team%2C%20I%20have%20an%20inquiry%20regarding%202026-LIVE%20T-Shirts',
   emailLink: 'Contact@sheraxzy.com',
-  instagramLink: 'https://www.instagram.com/elix.clothing',
+  instagramLink: 'https://www.instagram.com/shexz.clothing',
   tiktokLink: 'https://www.tiktok.com',
-  address: 'ELIX Studio, Malabe, Sri Lanka',
+  address: 'SheXz Studio, Malabe, Sri Lanka',
   hours: 'Monday – Saturday: 10:00 AM – 8:00 PM (IST)',
 };
 
@@ -26,9 +26,9 @@ const FAQ_ITEMS = [
       'Orders within Colombo & suburbs are delivered within 24–48 hours. Islandwide courier delivery to all other districts takes 2–3 business days with direct door-to-door tracking.',
   },
   {
-    question: 'What is the fabric spec and GSM of ELIX t-shirts?',
+    question: 'What is the fabric spec and GSM of SheXz t-shirts?',
     answer:
-      'All ELIX t-shirts are made from 100% custom-combed 220 GSM heavyweight cotton. This delivers a dense, boxy streetwear drape while maintaining breathability for tropical weather.',
+      'All SheXz t-shirts are made from 100% custom-combed 220 GSM heavyweight cotton. This delivers a dense, boxy streetwear drape while maintaining breathability for tropical weather.',
   },
   {
     question: 'What payment methods do you accept?',
@@ -194,7 +194,7 @@ const ContactPage: React.FC = () => {
               CONTACT & <span className="gradient-text luxury-shimmer">DIRECT DISPATCH</span>
             </h1>
             <p className="text-muted" style={{ fontSize: '1.1rem', lineHeight: 1.6 }}>
-              Connect directly with the ELIX atelier. Whether you need immediate sizing recommendations for our 220 GSM heavyweight t-shirts, order status verification, or custom inquiries, we're ready to assist.
+              Connect directly with the SheXz atelier. Whether you need immediate sizing recommendations for our 220 GSM heavyweight t-shirts, order status verification, or custom inquiries, we're ready to assist.
             </p>
           </div>
         </div>
@@ -285,7 +285,7 @@ const ContactPage: React.FC = () => {
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--accent-pink)', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '0.3rem' }}>
                 Channel 04 // Social Community
               </div>
-              <h3 style={{ fontSize: '1.3rem', marginBottom: '0.5rem' }}>Follow @elix.official</h3>
+              <h3 style={{ fontSize: '1.3rem', marginBottom: '0.5rem' }}>Follow @shexz.official</h3>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.25rem', lineHeight: 1.5 }}>
                 Tag us wearing your 2026-LIVE tees to be featured on our official feeds.
               </p>
@@ -448,7 +448,7 @@ const ContactPage: React.FC = () => {
                   <h3 style={{ fontSize: '1.25rem', margin: 0 }}>Instant Order Tracking</h3>
                 </div>
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', marginBottom: '1.25rem' }}>
-                  Enter your ELIX order number to check realtime courier tracking and delivery status.
+                  Enter your SheXz order number to check realtime courier tracking and delivery status.
                 </p>
 
                 <form onSubmit={handleOrderLookup} style={{ display: 'flex', gap: '0.6rem', marginBottom: '1rem' }}>

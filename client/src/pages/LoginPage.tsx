@@ -60,7 +60,7 @@ const LoginPage: React.FC = () => {
 
     if (user) {
       addToast({
-        title: 'Welcome to ELIX',
+        title: 'Welcome to SheXz',
         message: `Signed in successfully as ${user.name || user.username}`,
         type: 'success',
       });
@@ -98,7 +98,7 @@ const LoginPage: React.FC = () => {
     if (user) {
       addToast({
         title: 'Account Created',
-        message: `Welcome to ELIX, ${user.name || user.username}! (+200 pts)`,
+        message: `Welcome to SheXz, ${user.name || user.username}! (+200 pts)`,
         type: 'success',
       });
       navigate(from, { replace: true });
@@ -149,7 +149,7 @@ const LoginPage: React.FC = () => {
         <div className="auth-brand-side">
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '2rem' }}>
-              <span style={{ fontSize: '1.4rem', fontWeight: 900, letterSpacing: '0.2em', fontFamily: 'var(--font-display)' }}>ELIX</span>
+              <span style={{ fontSize: '1.4rem', fontWeight: 900, letterSpacing: '0.2em', fontFamily: 'var(--font-display)' }}>SheXz</span>
               <span className="brand-badge">2026-LIVE</span>
             </div>
             <div className="auth-brand-quote">
@@ -224,8 +224,8 @@ const LoginPage: React.FC = () => {
           </h1>
           <p className="auth-form-subtitle">
             {activeTab === 'login'
-              ? 'Enter your email or username to access your ELIX account.'
-              : 'Fill in your details to create your ELIX VIP account.'}
+              ? 'Enter your email or username to access your SheXz account.'
+              : 'Fill in your details to create your SheXz VIP account.'}
           </p>
 
           {/* Error Banner */}

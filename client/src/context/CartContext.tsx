@@ -10,7 +10,7 @@ interface CartProviderProps {
 export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>(() => {
     try {
-      const stored = localStorage.getItem('elixCart');
+      const stored = localStorage.getItem('shexzCart');
       return stored ? JSON.parse(stored) : [];
     } catch {
       return [];
@@ -18,7 +18,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   });
 
   useEffect(() => {
-    localStorage.setItem('elixCart', JSON.stringify(cartItems));
+    localStorage.setItem('shexzCart', JSON.stringify(cartItems));
   }, [cartItems]);
 
   const addToCart = (
