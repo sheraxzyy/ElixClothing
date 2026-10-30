@@ -24,20 +24,42 @@ const app = express();
 
 app.use(express.json());
 
-// Allow the Vite dev server locally and both production domains
-const ALLOWED_ORIGINS = [
+// Allow the Vite dev server locally and production domains
+const STATIC_ALLOWED_ORIGINS = [
   'http://localhost:3000',
   'http://127.0.0.1:3000',
-  'https://elixclothing.vercel.app',
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'https://shexzclothing.sheraxzy.com',
   'https://elixclothing.sheraxzy.com',
+  'https://shexzclothing.vercel.app',
+  'https://elixclothing.vercel.app',
 ];
+
+const envClientUrls = process.env.CLIENT_URL
+  ? process.env.CLIENT_URL.split(',').map((url) => url.trim().replace(/\/$/, ''))
+  : [];
+
+const ALLOWED_ORIGINS = [...new Set([...STATIC_ALLOWED_ORIGINS, ...envClientUrls])];
 
 app.use(
   cors({
     origin: (origin, callback) => {
       // Allow requests with no origin (curl, Postman, server-to-server)
       if (!origin) return callback(null, true);
-      if (ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
+
+      const normalizedOrigin = origin.replace(/\/$/, '');
+
+      // Check explicit allowed origins or wildcard matching for sheraxzy.com and vercel.app domains
+      const isAllowed =
+        ALLOWED_ORIGINS.includes(normalizedOrigin) ||
+        /^https:\/\/([a-z0-9-]+\.)*sheraxzy\.com$/i.test(normalizedOrigin) ||
+        /^https:\/\/([a-z0-9-]+\.)*vercel\.app$/i.test(normalizedOrigin);
+
+      if (isAllowed) {
+        return callback(null, true);
+      }
+
       callback(new Error(`CORS: origin '${origin}' not allowed`));
     },
     credentials: true,
