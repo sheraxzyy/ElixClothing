@@ -3,12 +3,14 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
-import { ShoppingBag, Shield, User as UserIcon, MoreVertical, Home, Sparkles, Compass, Ruler, MessageSquare, LogOut, ChevronDown, Flame } from 'lucide-react';
+import { ShoppingBag, Shield, User as UserIcon, MoreVertical, Home, Sparkles, Compass, Ruler, MessageSquare, LogOut, ChevronDown, Flame, Volume2, VolumeX } from 'lucide-react';
+import useSound from '../hooks/useSound';
 
 const NavBar: React.FC = () => {
   const { user, logout, registeredCount, isMasterAdmin } = useAuth();
   const { cartItems } = useCart();
   const { addToast } = useToast();
+  const { soundEnabled, toggleSound, playClick } = useSound();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -129,13 +131,29 @@ const NavBar: React.FC = () => {
             )}
           </nav>
 
-          {/* Header Actions (Cart, User, 3-Dots Menu) */}
+          {/* Header Actions (Sound, Cart, User, 3-Dots Menu) */}
           <div className="header-actions">
+            {/* Audio Feedback Toggle */}
+            <button
+              type="button"
+              className={`sound-toggle-btn ${soundEnabled ? 'active' : 'muted'}`}
+              onClick={toggleSound}
+              title={soundEnabled ? 'UI Audio: ON (Click to Mute)' : 'UI Audio: MUTED (Click to Enable)'}
+              aria-label={soundEnabled ? 'Mute sound effects' : 'Enable sound effects'}
+            >
+              {soundEnabled ? (
+                <Volume2 size={18} className="sound-icon-on" />
+              ) : (
+                <VolumeX size={18} className="sound-icon-off" />
+              )}
+            </button>
+
             {/* Cart Icon Button with Bounce Indicator */}
             <Link
               to="/cart"
               className="cart-button-link group"
               aria-label={`Cart with ${totalItemsCount} items`}
+              onClick={playClick}
             >
               <ShoppingBag size={20} className="cart-svg-icon transition-transform duration-300 group-hover:scale-110" />
               {totalItemsCount > 0 && (
@@ -328,6 +346,27 @@ const NavBar: React.FC = () => {
                         </Link>
                       </>
                     )}
+                    {/* Audio Sound Toggle in Drawer */}
+                    <div className="dots-menu-divider" />
+                    <button
+                      type="button"
+                      className="dots-menu-link dots-sound-btn"
+                      onClick={() => {
+                        toggleSound();
+                      }}
+                    >
+                      <span className="dots-link-label">
+                        {soundEnabled ? (
+                          <Volume2 size={16} className="dots-link-icon" style={{ color: 'var(--accent-cyan)' }} />
+                        ) : (
+                          <VolumeX size={16} className="dots-link-icon" style={{ color: 'var(--text-dim)' }} />
+                        )}
+                        UI Audio Feedback
+                      </span>
+                      <span className={`dots-sound-indicator ${soundEnabled ? 'on' : 'off'}`}>
+                        {soundEnabled ? 'ENABLED' : 'MUTED'}
+                      </span>
+                    </button>
                   </nav>
 
                   {/* Account / User Section in 3-Dots Menu */}

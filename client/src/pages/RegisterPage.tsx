@@ -3,6 +3,7 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import OAuthModal from '../components/OAuthModal';
+import useSound from '../hooks/useSound';
 import { User as UserIcon, Lock, Mail, Eye, EyeOff, Sparkles, AtSign } from 'lucide-react';
 import { User } from '../types';
 
@@ -11,6 +12,7 @@ const RegisterPage: React.FC = () => {
   const location = useLocation();
   const { register, loading, error, setError } = useAuth();
   const { addToast } = useToast();
+  const { playClick, playSuccess } = useSound();
 
   const [realName, setRealName] = useState<string>('');
   const [username, setUsername] = useState<string>('');
@@ -30,6 +32,7 @@ const RegisterPage: React.FC = () => {
     e.preventDefault();
     if (setError) setError(null);
 
+    playClick();
     if (!realName.trim() || !username.trim() || !email.trim() || !password || !repeatPassword) {
       if (setError) setError('Please fill in all 5 required fields.');
       return;
@@ -49,6 +52,7 @@ const RegisterPage: React.FC = () => {
     });
 
     if (user) {
+      playSuccess();
       addToast({
         title: 'Welcome to ELIX',
         message: `Your account has been saved to the database, ${user.name || user.username}! (+200 pts)`,

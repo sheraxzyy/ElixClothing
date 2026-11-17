@@ -4,6 +4,7 @@ import { getProducts, formatPrice } from '../services/productService';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
 import { Product } from '../types';
+import useSound from '../hooks/useSound';
 import { Sparkles, Heart, ShoppingBag, ArrowRight, ShieldCheck, Flame, Star, Layers, Scissors, CheckCircle2 } from 'lucide-react';
 
 const HomePage: React.FC = () => {
@@ -12,6 +13,7 @@ const HomePage: React.FC = () => {
   const [wishlist, setWishlist] = useState<Record<string, boolean>>({});
   const { addToCart } = useCart();
   const { addToast } = useToast();
+  const { playClick, playAddToCart } = useSound();
 
   useEffect(() => {
     const load = async () => {
@@ -29,6 +31,7 @@ const HomePage: React.FC = () => {
 
   const handleQuickAdd = (product: Product, e: React.MouseEvent) => {
     e.stopPropagation();
+    playAddToCart();
     addToCart(product, 1, 'L', 'Black');
     addToast({
       title: 'Added to Bag',
@@ -39,6 +42,7 @@ const HomePage: React.FC = () => {
 
   const toggleWishlist = (productId: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    playClick();
     const isLiked = !wishlist[productId];
     setWishlist((prev) => ({ ...prev, [productId]: isLiked }));
     if (isLiked) {

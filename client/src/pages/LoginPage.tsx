@@ -3,6 +3,7 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import OAuthModal from '../components/OAuthModal';
+import useSound from '../hooks/useSound';
 import { User as UserIcon, Lock, Mail, Eye, EyeOff, Shield, Crown, Sparkles, AtSign } from 'lucide-react';
 import { User } from '../types';
 
@@ -11,6 +12,7 @@ const LoginPage: React.FC = () => {
   const location = useLocation();
   const { login, loginWithAdminKey, register, loading, error, setError } = useAuth();
   const { addToast } = useToast();
+  const { playClick, playSuccess } = useSound();
 
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
 
@@ -47,6 +49,7 @@ const LoginPage: React.FC = () => {
     e.preventDefault();
     if (setError) setError(null);
 
+    playClick();
     if (!emailOrUsername.trim() || !loginPassword) {
       if (setError) setError('Please fill in both your email/username and password.');
       return;
@@ -59,6 +62,7 @@ const LoginPage: React.FC = () => {
     });
 
     if (user) {
+      playSuccess();
       addToast({
         title: 'Welcome to ELIX',
         message: `Signed in successfully as ${user.name || user.username}`,
@@ -76,6 +80,7 @@ const LoginPage: React.FC = () => {
     e.preventDefault();
     if (setError) setError(null);
 
+    playClick();
     if (!realName.trim() || !username.trim() || !email.trim() || !password || !repeatPassword) {
       if (setError) setError('Please provide all 5 fields: Real Name, Username, Email, Password, and Repeat Password.');
       return;
@@ -96,6 +101,7 @@ const LoginPage: React.FC = () => {
     });
 
     if (user) {
+      playSuccess();
       addToast({
         title: 'Account Created',
         message: `Welcome to ELIX, ${user.name || user.username}! (+200 pts)`,

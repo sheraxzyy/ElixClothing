@@ -4,6 +4,7 @@ import { getProducts, formatPrice } from '../services/productService';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
 import { Product } from '../types';
+import useSound from '../hooks/useSound';
 import { Search, Heart, ShoppingBag, Sparkles, Flame, Star, RefreshCw, AlertTriangle } from 'lucide-react';
 
 const ShopPage: React.FC = () => {
@@ -17,6 +18,7 @@ const ShopPage: React.FC = () => {
 
   const { addToCart } = useCart();
   const { addToast } = useToast();
+  const { playClick, playAddToCart } = useSound();
 
   const loadProducts = async () => {
     setLoading(true);
@@ -45,6 +47,7 @@ const ShopPage: React.FC = () => {
 
   const handleQuickAdd = (product: Product, e: React.MouseEvent) => {
     e.stopPropagation();
+    playAddToCart();
     addToCart(product, 1, 'L', 'Black');
     addToast({
       title: 'Added to Bag',
@@ -55,6 +58,7 @@ const ShopPage: React.FC = () => {
 
   const toggleWishlist = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    playClick();
     setWishlist((prev) => {
       const updated = !prev[id];
       if (updated) {

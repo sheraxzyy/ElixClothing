@@ -3,11 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
 import { formatPrice } from '../services/productService';
+import useSound from '../hooks/useSound';
 import { ShoppingBag, ArrowRight, Trash2, Tag, Truck, ShieldCheck } from 'lucide-react';
 
 const CartPage: React.FC = () => {
   const { cartItems, updateQuantity, removeFromCart, subtotal } = useCart();
   const { addToast } = useToast();
+  const { playClick, playSuccess, playRemove } = useSound();
   const navigate = useNavigate();
 
   const [couponCode, setCouponCode] = useState<string>('');
@@ -30,6 +32,7 @@ const CartPage: React.FC = () => {
     const normalized = couponCode.trim().toUpperCase();
     if (normalized === 'ELIX15' || normalized === 'ELIX10' || normalized === 'SHEXZ15') {
       const discount = normalized === 'ELIX10' ? 10 : 15;
+      playSuccess();
       setDiscountPercent(discount);
       setAppliedCoupon(normalized);
       addToast({
@@ -39,6 +42,7 @@ const CartPage: React.FC = () => {
       });
       setCouponCode('');
     } else {
+      playClick();
       addToast({
         title: 'Invalid Coupon',
         message: 'Try using code "ELIX15" for 15% off.',
@@ -48,6 +52,7 @@ const CartPage: React.FC = () => {
   };
 
   const handleRemove = (id: string, name: string) => {
+    playRemove();
     removeFromCart(id);
     addToast({
       title: 'Item Removed',
@@ -118,7 +123,10 @@ const CartPage: React.FC = () => {
                         <button
                           type="button"
                           className="qty-step-btn"
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          onClick={() => {
+                            playClick();
+                            updateQuantity(item.id, item.quantity - 1);
+                          }}
                         >
                           -
                         </button>
@@ -126,7 +134,10 @@ const CartPage: React.FC = () => {
                         <button
                           type="button"
                           className="qty-step-btn"
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          onClick={() => {
+                            playClick();
+                            updateQuantity(item.id, item.quantity + 1);
+                          }}
                         >
                           +
                         </button>

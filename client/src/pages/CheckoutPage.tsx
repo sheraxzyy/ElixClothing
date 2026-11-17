@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { formatPrice } from '../services/productService';
 import * as orderService from '../services/orderService';
+import useSound from '../hooks/useSound';
 import { ShieldCheck, Truck, CreditCard, Banknote, Zap, ArrowRight } from 'lucide-react';
 
 const CheckoutPage: React.FC = () => {
@@ -12,6 +13,7 @@ const CheckoutPage: React.FC = () => {
   const { cartItems, subtotal, clearCart } = useCart();
   const { user } = useAuth();
   const { addToast } = useToast();
+  const { playClick, playSuccess } = useSound();
 
   const [fullName, setFullName] = useState<string>(user?.name || '');
   const [email, setEmail] = useState<string>(user?.email || '');
@@ -93,6 +95,7 @@ const CheckoutPage: React.FC = () => {
 
       clearCart();
       setIsProcessing(false);
+      playSuccess();
       addToast({
         title: 'Order Confirmed! 🎉',
         message: `Order #${placedOrder.id} dispatched! Confirmation sent to ${email}.`,
