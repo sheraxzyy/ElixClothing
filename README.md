@@ -1,6 +1,6 @@
-# SheXz
+# ELIX
 
-SheXz is a premium oversized streetwear e-commerce platform built with React, Node.js, Express, and PostgreSQL/Prisma.
+ELIX is a premium oversized streetwear e-commerce platform built with React, Node.js, Express, and PostgreSQL/Prisma.
 
 ## Features
 
@@ -41,4 +41,4 @@ SheXz is a premium oversized streetwear e-commerce platform built with React, No
 - `PORT` - Backend server port
 - `CLIENT_URL` - Frontend URL for CORS
 
-# SheXz Clothing
+# ELIX Clothing

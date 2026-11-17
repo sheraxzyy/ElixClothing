@@ -1,7 +1,7 @@
 import api from './api';
 import { OrderType } from '../types';
 
-const STORAGE_KEY = 'shexz_store_orders';
+const STORAGE_KEY = 'elix_store_orders';
 
 const INITIAL_DEMO_ORDERS: OrderType[] = [
   {
@@ -23,7 +23,7 @@ const INITIAL_DEMO_ORDERS: OrderType[] = [
     orderItems: [
       {
         id: 'item_1',
-        name: 'SheXz "REMORSE" Oversized Heavyweight Tee',
+        name: 'ELIX "REMORSE" Oversized Heavyweight Tee',
         image: '/images/products/remorse-tee.jpg',
         price: 3750,
         quantity: 2,
@@ -59,7 +59,7 @@ const INITIAL_DEMO_ORDERS: OrderType[] = [
     orderItems: [
       {
         id: 'item_2',
-        name: 'SheXz "ANOMALY" 220 GSM Cyber Graphic',
+        name: 'ELIX "ANOMALY" 220 GSM Cyber Graphic',
         image: '/images/products/anomaly-tee.jpg',
         price: 4200,
         quantity: 1,
@@ -96,7 +96,7 @@ const INITIAL_DEMO_ORDERS: OrderType[] = [
     orderItems: [
       {
         id: 'item_3',
-        name: 'SheXz "NOSTALGIA" Boxy Fit Heavyweight Tee',
+        name: 'ELIX "NOSTALGIA" Boxy Fit Heavyweight Tee',
         image: '/images/products/nostalgia-tee.jpg',
         price: 3750,
         quantity: 1,
@@ -105,7 +105,7 @@ const INITIAL_DEMO_ORDERS: OrderType[] = [
       },
       {
         id: 'item_4',
-        name: 'SheXz "CYBERNETIC" Distressed Graphic',
+        name: 'ELIX "CYBERNETIC" Distressed Graphic',
         image: '/images/products/cyber-tee.jpg',
         price: 3750,
         quantity: 2,
@@ -125,7 +125,7 @@ const INITIAL_DEMO_ORDERS: OrderType[] = [
 
 const getStoredOrders = (): OrderType[] => {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('shexz_store_orders');
     if (!raw) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_DEMO_ORDERS));
       return INITIAL_DEMO_ORDERS;

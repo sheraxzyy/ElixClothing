@@ -56,7 +56,11 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
     try {
-      const stored = localStorage.getItem('shexzUser') || sessionStorage.getItem('shexzUser');
+      const stored =
+        localStorage.getItem('elixUser') ||
+        sessionStorage.getItem('elixUser') ||
+        localStorage.getItem('shexzUser') ||
+        sessionStorage.getItem('shexzUser');
       return stored ? JSON.parse(stored) : null;
     } catch {
       return null;
@@ -82,7 +86,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const saveSession = (userData: any, token?: string | null, remember: boolean = true): User => {
     const sessionUser: User = {
       id: userData.id || userData._id,
-      name: userData.realName || userData.name || userData.username || 'SheXz Member',
+      name: userData.realName || userData.name || userData.username || 'ELIX Member',
       realName: userData.realName || userData.name,
       username: userData.username,
       email: userData.email,
@@ -90,7 +94,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       isAdmin: userData.role === 'admin' || userData.role === 'owner',
       isOwner: userData.role === 'owner',
       provider: userData.provider || 'email',
-      avatar: userData.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(userData.email || userData.username || 'shexz')}`,
+      avatar: userData.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(userData.email || userData.username || 'elix')}`,
       points: userData.points ?? 200,
       phone: userData.phone || '',
     };
@@ -99,15 +103,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     if (token) {
       if (remember) {
-        localStorage.setItem('shexzToken', token);
-        localStorage.setItem('shexzUser', JSON.stringify(sessionUser));
+        localStorage.setItem('elixToken', token);
+        localStorage.setItem('elixUser', JSON.stringify(sessionUser));
+        sessionStorage.removeItem('elixToken');
+        sessionStorage.removeItem('elixUser');
+        localStorage.removeItem('shexzToken');
+        localStorage.removeItem('shexzUser');
         sessionStorage.removeItem('shexzToken');
         sessionStorage.removeItem('shexzUser');
       } else {
-        sessionStorage.setItem('shexzToken', token);
-        sessionStorage.setItem('shexzUser', JSON.stringify(sessionUser));
+        sessionStorage.setItem('elixToken', token);
+        sessionStorage.setItem('elixUser', JSON.stringify(sessionUser));
+        localStorage.removeItem('elixToken');
+        localStorage.removeItem('elixUser');
         localStorage.removeItem('shexzToken');
         localStorage.removeItem('shexzUser');
+        sessionStorage.removeItem('shexzToken');
+        sessionStorage.removeItem('shexzUser');
       }
     }
     return sessionUser;
@@ -115,6 +127,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const clearSession = () => {
     setUser(null);
+    localStorage.removeItem('elixToken');
+    localStorage.removeItem('elixUser');
+    sessionStorage.removeItem('elixToken');
+    sessionStorage.removeItem('elixUser');
     localStorage.removeItem('shexzToken');
     localStorage.removeItem('shexzUser');
     sessionStorage.removeItem('shexzToken');
@@ -124,13 +140,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // Verify stored session with PostgreSQL on mount
   useEffect(() => {
     const verifySession = async () => {
-      const token = localStorage.getItem('shexzToken') || sessionStorage.getItem('shexzToken');
+      const token =
+        localStorage.getItem('elixToken') ||
+        sessionStorage.getItem('elixToken') ||
+        localStorage.getItem('shexzToken') ||
+        sessionStorage.getItem('shexzToken');
       if (!token) return;
 
       try {
         const profile = await authService.fetchProfile();
         if (profile) {
-          saveSession(profile, null, Boolean(localStorage.getItem('shexzToken')));
+          const isRemembered = Boolean(localStorage.getItem('elixToken') || localStorage.getItem('shexzToken'));
+          saveSession(profile, null, isRemembered);
         }
       } catch (err: any) {
         console.warn('Session verification failed, logging out:', err.message);

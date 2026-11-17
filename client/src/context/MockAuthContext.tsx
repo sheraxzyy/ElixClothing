@@ -14,15 +14,15 @@ const AuthContext = createContext<MockAuthContextType | null>(null);
 
 const mockUser: User = {
   id: 'mock-user',
-  name: 'SheXz Customer',
-  email: 'customer@shexz.example',
+  name: 'ELIX Customer',
+  email: 'customer@elix.example',
   role: 'customer',
 };
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
     try {
-      const stored = localStorage.getItem('shexzUser');
+      const stored = localStorage.getItem('elixUser') || localStorage.getItem('shexzUser');
       return stored ? JSON.parse(stored) : null;
     } catch {
       return null;
@@ -34,8 +34,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   useEffect(() => {
     if (user) {
-      localStorage.setItem('shexzUser', JSON.stringify(user));
+      localStorage.setItem('elixUser', JSON.stringify(user));
     } else {
+      localStorage.removeItem('elixUser');
       localStorage.removeItem('shexzUser');
     }
   }, [user]);
