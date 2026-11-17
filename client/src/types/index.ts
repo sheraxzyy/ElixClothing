@@ -145,3 +145,16 @@ export interface CustomerMessage {
   createdAt: string;
   status: 'unread' | 'read' | 'replied';
 }
+
+export type VisualMode = 'normal' | 'ultra';
+
+export interface VisualModeContextType {
+  mode: VisualMode;
+  isUltra: boolean;
+  setMode: (mode: VisualMode) => void;
+  toggleMode: () => void;
+  triggerCinematicLoader: (durationMs?: number, label?: string) => void;
+  isLoaderActive: boolean;
+  loaderLabel: string;
+}
+

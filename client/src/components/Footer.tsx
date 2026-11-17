@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
+import VisualModeSwitch from './VisualModeSwitch';
 
 const Footer: React.FC = () => {
   const { addToast } = useToast();
@@ -95,6 +96,11 @@ const Footer: React.FC = () => {
               <li><Link to="/admin" style={{ color: '#38bdf8' }}>🛡️ Admin Panel</Link></li>
             </ul>
           </div>
+        </div>
+
+        {/* Visual Experience Dual UI Settings Section */}
+        <div className="footer-visual-experience-section">
+          <VisualModeSwitch variant="card" />
         </div>
 
         {/* Bottom Bar */}

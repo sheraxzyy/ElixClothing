@@ -5,6 +5,7 @@ import App from './App';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { ToastProvider } from './context/ToastContext';
+import { VisualModeProvider } from './context/VisualModeContext';
 import './styles.css';
 
 const rootElement = document.getElementById('root');
@@ -15,13 +16,15 @@ if (!rootElement) {
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <BrowserRouter>
-      <AuthProvider>
-        <CartProvider>
-          <ToastProvider>
-            <App />
-          </ToastProvider>
-        </CartProvider>
-      </AuthProvider>
+      <VisualModeProvider>
+        <AuthProvider>
+          <CartProvider>
+            <ToastProvider>
+              <App />
+            </ToastProvider>
+          </CartProvider>
+        </AuthProvider>
+      </VisualModeProvider>
     </BrowserRouter>
   </React.StrictMode>
 );

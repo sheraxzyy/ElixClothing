@@ -4,7 +4,7 @@
 // zero latency, zero 404s, fully compliant with browser autoplay policies.
 // ============================================================================
 
-type SoundType = 'click' | 'addToCart' | 'success' | 'notification' | 'toggle' | 'remove';
+type SoundType = 'click' | 'addToCart' | 'success' | 'notification' | 'toggle' | 'remove' | 'ultra' | 'normal';
 
 class SoundManager {
   private ctx: AudioContext | null = null;
@@ -222,6 +222,54 @@ class SoundManager {
           osc.stop(now + 0.09);
           break;
         }
+
+        case 'ultra': {
+          // Futuristic cinematic power-up sound for Ultra Graphics Mode
+          const osc1 = ctx.createOscillator();
+          const osc2 = ctx.createOscillator();
+          const gain = ctx.createGain();
+
+          osc1.type = 'sine';
+          osc1.frequency.setValueAtTime(220, now);
+          osc1.frequency.exponentialRampToValueAtTime(880, now + 0.35);
+
+          osc2.type = 'triangle';
+          osc2.frequency.setValueAtTime(440, now);
+          osc2.frequency.exponentialRampToValueAtTime(1760, now + 0.35);
+
+          gain.gain.setValueAtTime(0.01, now);
+          gain.gain.linearRampToValueAtTime(0.18, now + 0.1);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+
+          osc1.connect(gain);
+          osc2.connect(gain);
+          gain.connect(this.masterGain);
+
+          osc1.start(now);
+          osc2.start(now);
+          osc1.stop(now + 0.42);
+          osc2.stop(now + 0.42);
+          break;
+        }
+
+        case 'normal': {
+          // Clean subtle interface snap for Normal Mode
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(600, now);
+          osc.frequency.exponentialRampToValueAtTime(400, now + 0.06);
+
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+
+          osc.connect(gain);
+          gain.connect(this.masterGain);
+          osc.start(now);
+          osc.stop(now + 0.07);
+          break;
+        }
       }
     } catch (e) {
       // AudioContext error suppressed safely
@@ -247,6 +295,10 @@ class SoundManager {
 
   public playRemove(): void {
     this.play('remove');
+  }
+
+  public playModeSwitch(isUltra: boolean): void {
+    this.play(isUltra ? 'ultra' : 'normal');
   }
 }
 

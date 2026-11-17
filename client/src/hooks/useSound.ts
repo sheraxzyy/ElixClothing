@@ -35,6 +35,10 @@ export const useSound = () => {
     soundManager.playRemove();
   }, []);
 
+  const playModeSwitch = useCallback((isUltra: boolean) => {
+    soundManager.playModeSwitch(isUltra);
+  }, []);
+
   return {
     soundEnabled,
     toggleSound,
@@ -43,6 +47,7 @@ export const useSound = () => {
     playSuccess,
     playNotification,
     playRemove,
+    playModeSwitch,
   };
 };
 

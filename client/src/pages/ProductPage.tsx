@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
+import { useVisualMode } from '../context/VisualModeContext';
 import useSound from '../hooks/useSound';
 import { formatPrice, getProductBySlug } from '../services/productService';
 import { Product } from '../types';
@@ -44,6 +45,7 @@ const ProductPage: React.FC = () => {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const { addToast } = useToast();
+  const { isUltra } = useVisualMode();
   const { playClick, playAddToCart, playSuccess } = useSound();
 
   const [product, setProduct] = useState<Product | null>(null);
@@ -281,7 +283,7 @@ const ProductPage: React.FC = () => {
               {/* Main Image with Hover Zoom */}
               <div
                 ref={mainImageRef}
-                className={`product-main-stage luxury-glow-card ${isZooming ? 'is-zoomed' : ''}`}
+                className={`product-main-stage luxury-glow-card ${isZooming ? 'is-zoomed' : ''} ${isUltra ? 'ultra-main-stage' : 'normal-main-stage'}`}
                 onMouseEnter={() => setIsZooming(true)}
                 onMouseLeave={() => setIsZooming(false)}
                 onMouseMove={handleMouseMove}
@@ -296,16 +298,33 @@ const ProductPage: React.FC = () => {
                 <img
                   src={currentImage}
                   alt={product.name}
-                  className="product-main-img"
+                  className={`product-main-img ${isUltra ? 'ultra-img-transition' : ''}`}
                   style={{
                     transformOrigin: `${zoomCoords.x}% ${zoomCoords.y}%`,
                   }}
                   loading="eager"
                 />
 
+                {/* Ultra Mode Cyber HUD Reticle */}
+                {isUltra && isZooming && (
+                  <div
+                    className="ultra-reticle-overlay"
+                    style={{
+                      left: `${zoomCoords.x}%`,
+                      top: `${zoomCoords.y}%`,
+                    }}
+                    aria-hidden="true"
+                  >
+                    <div className="reticle-ring" />
+                    <div className="reticle-coords">
+                      X:{Math.round(zoomCoords.x)} Y:{Math.round(zoomCoords.y)}
+                    </div>
+                  </div>
+                )}
+
                 {/* Badges on Gallery */}
                 <div className="gallery-badges">
-                  <span className="gallery-badge-drop">
+                  <span className={`gallery-badge-drop ${isUltra ? 'ultra-badge-pulse' : ''}`}>
                     <Sparkles size={11} /> 2026-LIVE ATELIER
                   </span>
                   {product.bestSeller && (
@@ -316,20 +335,20 @@ const ProductPage: React.FC = () => {
                 </div>
 
                 {/* Zoom Hint Icon */}
-                <div className="gallery-zoom-trigger">
+                <div className={`gallery-zoom-trigger ${isUltra ? 'ultra-zoom-pill' : ''}`}>
                   <ZoomIn size={16} />
-                  <span>Click to Expand</span>
+                  <span>{isUltra ? 'CINEMATIC INSPECTION' : 'Click to Expand'}</span>
                 </div>
               </div>
 
               {/* Thumbnail Strip */}
               {allImages.length > 1 && (
-                <div className="product-thumb-carousel">
+                <div className={`product-thumb-carousel ${isUltra ? 'ultra-thumb-strip' : ''}`}>
                   {allImages.map((imgUrl, index) => (
                     <button
                       key={index}
                       type="button"
-                      className={`product-thumb-pill ${selectedImg === index ? 'active' : ''}`}
+                      className={`product-thumb-pill ${selectedImg === index ? 'active' : ''} ${isUltra ? 'ultra-thumb-btn' : ''}`}
                       onClick={() => {
                         playClick();
                         setSelectedImg(index);
@@ -337,7 +356,7 @@ const ProductPage: React.FC = () => {
                       aria-label={`View image angle ${index + 1}`}
                     >
                       <img src={imgUrl} alt={`${product.name} preview ${index + 1}`} />
-                      {selectedImg === index && <span className="thumb-active-dot" />}
+                      {selectedImg === index && <span className={`thumb-active-dot ${isUltra ? 'ultra-dot-glow' : ''}`} />}
                     </button>
                   ))}
                 </div>
@@ -455,7 +474,7 @@ const ProductPage: React.FC = () => {
                   </span>
                 </div>
 
-                <div className="color-swatch-cluster">
+                <div className={`color-swatch-cluster ${isUltra ? 'ultra-color-cluster' : ''}`}>
                   {availableColors.map((color) => {
                     const palette = COLOR_PALETTE[color] || COLOR_PALETTE['Default'];
                     const isSelected = selectedColor === color;
@@ -463,19 +482,20 @@ const ProductPage: React.FC = () => {
                       <button
                         key={color}
                         type="button"
-                        className={`color-swatch-btn ${isSelected ? 'active' : ''}`}
+                        className={`color-swatch-btn ${isSelected ? 'active' : ''} ${isUltra ? 'ultra-swatch-btn' : ''}`}
                         onClick={() => handleColorSelect(color)}
                         title={color}
                         aria-label={`Select color ${color}`}
                       >
                         <span
-                          className="swatch-color-circle"
+                          className={`swatch-color-circle ${isUltra ? 'ultra-circle-ring' : ''}`}
                           style={{
                             backgroundColor: palette.bg,
                             border: `1px solid ${palette.border}`,
                           }}
                         >
                           {isSelected && <Check size={13} color={palette.text} />}
+                          {isUltra && isSelected && <span className="ultra-swatch-halo" />}
                         </span>
                         <span className="swatch-name-label">{color}</span>
                       </button>
@@ -513,14 +533,14 @@ const ProductPage: React.FC = () => {
                   </div>
                 )}
 
-                <div className="size-selection-grid">
+                <div className={`size-selection-grid ${isUltra ? 'ultra-size-grid' : ''}`}>
                   {availableSizes.map((size) => {
                     const isSelected = selectedSize === size;
                     return (
                       <button
                         key={size}
                         type="button"
-                        className={`size-tile-btn ${isSelected ? 'active' : ''}`}
+                        className={`size-tile-btn ${isSelected ? 'active' : ''} ${isUltra ? 'ultra-size-tile' : ''}`}
                         onClick={() => handleSizeSelect(size)}
                         aria-label={`Select size ${size}`}
                       >
@@ -531,6 +551,7 @@ const ProductPage: React.FC = () => {
                           </span>
                         )}
                         <span className="size-tile-sub">Oversized</span>
+                        {isUltra && isSelected && <span className="ultra-tile-glow-border" />}
                       </button>
                     );
                   })}
@@ -548,7 +569,7 @@ const ProductPage: React.FC = () => {
               <div className="product-option-section">
                 <span className="option-heading">Quantity:</span>
                 <div className="quantity-controller-wrap">
-                  <div className="quantity-stepper">
+                  <div className={`quantity-stepper ${isUltra ? 'ultra-stepper' : ''}`}>
                     <button
                       type="button"
                       className="quantity-step-btn"
@@ -574,12 +595,13 @@ const ProductPage: React.FC = () => {
               </div>
 
               {/* Action Buttons Group */}
-              <div ref={actionsRef} className="product-cta-group">
+              <div ref={actionsRef} className={`product-cta-group ${isUltra ? 'ultra-cta-group' : ''}`}>
                 <button
                   type="button"
-                  className={`btn btn-glow btn-lg btn-add-bag luxury-hover ${addedAnimation ? 'btn-success-state' : ''}`}
+                  className={`btn btn-glow btn-lg btn-add-bag luxury-hover ${addedAnimation ? 'btn-success-state' : ''} ${isUltra ? 'ultra-3d-btn ultra-add-bag-btn' : ''}`}
                   onClick={handleAddToCart}
                 >
+                  {isUltra && <span className="ultra-btn-shimmer-sweep" />}
                   {addedAnimation ? (
                     <>
                       <Check size={20} className="cta-icon-animate" /> Added to Your Bag!
@@ -589,13 +611,15 @@ const ProductPage: React.FC = () => {
                       <ShoppingBag size={20} /> Add to Bag • {formatPrice(product.price * quantity)}
                     </>
                   )}
+                  {isUltra && addedAnimation && <span className="ultra-burst-ring" />}
                 </button>
 
                 <button
                   type="button"
-                  className="btn btn-secondary btn-lg btn-buy-now luxury-hover"
+                  className={`btn btn-secondary btn-lg btn-buy-now luxury-hover ${isUltra ? 'ultra-3d-btn ultra-buy-btn' : ''}`}
                   onClick={handleBuyNow}
                 >
+                  {isUltra && <span className="ultra-btn-shimmer-sweep" />}
                   <Zap size={20} /> Buy Now — Instant Checkout
                 </button>
               </div>
@@ -732,14 +756,14 @@ const ProductPage: React.FC = () => {
 
       {/* Sticky Mobile Add to Bag Bar */}
       {showStickyBar && (
-        <div className="mobile-sticky-bar animate-slide-up">
+        <div className={`mobile-sticky-bar animate-slide-up ${isUltra ? 'ultra-sticky-bar' : ''}`}>
           <div className="mobile-sticky-info">
             <span className="sticky-title">{product.name}</span>
             <span className="sticky-price">{formatPrice(product.price)}</span>
           </div>
           <button
             type="button"
-            className="btn btn-glow btn-sm luxury-hover"
+            className={`btn btn-glow btn-sm luxury-hover ${isUltra ? 'ultra-3d-btn' : ''}`}
             onClick={handleAddToCart}
           >
             <ShoppingBag size={15} /> Add to Bag ({selectedSize})
@@ -750,12 +774,12 @@ const ProductPage: React.FC = () => {
       {/* Interactive Size Guide Modal with Inches/CM Toggle */}
       {sizeGuideOpen && (
         <div
-          className="modal-backdrop animate-fade-in"
+          className={`modal-backdrop animate-fade-in ${isUltra ? 'ultra-modal-backdrop' : ''}`}
           style={{ zIndex: 10000 }}
           onClick={() => setSizeGuideOpen(false)}
         >
           <div
-            className="glass-card size-guide-modal-card animate-scale-up"
+            className={`glass-card size-guide-modal-card animate-scale-up ${isUltra ? 'ultra-modal-card' : ''}`}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="modal-title-row">

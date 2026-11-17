@@ -3,8 +3,9 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
-import { ShoppingBag, Shield, User as UserIcon, MoreVertical, Home, Sparkles, Compass, Ruler, MessageSquare, LogOut, ChevronDown, Flame, Volume2, VolumeX } from 'lucide-react';
+import { ShoppingBag, Shield, User as UserIcon, MoreVertical, Home, Sparkles, Compass, Ruler, MessageSquare, LogOut, ChevronDown, Flame, Volume2, VolumeX, Sliders } from 'lucide-react';
 import useSound from '../hooks/useSound';
+import VisualModeSwitch from './VisualModeSwitch';
 
 const NavBar: React.FC = () => {
   const { user, logout, registeredCount, isMasterAdmin } = useAuth();
@@ -131,8 +132,11 @@ const NavBar: React.FC = () => {
             )}
           </nav>
 
-          {/* Header Actions (Sound, Cart, User, 3-Dots Menu) */}
+          {/* Header Actions (Visual Experience, Sound, Cart, User, 3-Dots Menu) */}
           <div className="header-actions">
+            {/* Visual Experience Dual-UI Switch (Prominent on desktop/tablet) */}
+            <VisualModeSwitch variant="navbar" />
+
             {/* Audio Feedback Toggle */}
             <button
               type="button"
@@ -215,6 +219,12 @@ const NavBar: React.FC = () => {
                         <Shield size={16} /> Admin Console ({registeredCount})
                       </Link>
                     )}
+
+                    {/* Visual Experience Switch in User Menu */}
+                    <div className="user-dropdown-custom-section">
+                      <VisualModeSwitch variant="menu-item" onAfterToggle={() => setUserDropdownOpen(false)} />
+                    </div>
+
                     <button
                       type="button"
                       className="user-dropdown-item"
@@ -346,6 +356,12 @@ const NavBar: React.FC = () => {
                         </Link>
                       </>
                     )}
+                    {/* Visual Experience Toggle in Drawer */}
+                    <div className="dots-menu-divider" />
+                    <div className="dots-custom-section">
+                      <VisualModeSwitch variant="menu-item" onAfterToggle={() => setDotsMenuOpen(false)} />
+                    </div>
+
                     {/* Audio Sound Toggle in Drawer */}
                     <div className="dots-menu-divider" />
                     <button
