@@ -1,5 +1,6 @@
 import asyncHandler from 'express-async-handler';
 import prisma from '../config/db.js';
+import stockNotificationService from '../services/StockNotificationService.js';
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
@@ -221,12 +222,22 @@ export const updateProduct = asyncHandler(async (req, res) => {
   // Replace sizes if sent
   if (Array.isArray(newSizes)) {
     await prisma.productSize.deleteMany({ where: { productId: id } });
+    const createdSizes = newSizes.map(({ size, stock }) => ({
+      size,
+      stock: Number(stock) || 0,
+    }));
     data.sizes = {
-      create: newSizes.map(({ size, stock }) => ({
-        size,
-        stock: Number(stock) || 0,
-      })),
+      create: createdSizes,
     };
+
+    // Check restock triggers in background
+    for (const item of createdSizes) {
+      if (item.stock > 0) {
+        stockNotificationService.checkAndNotifyRestock(id, item.size, item.stock).catch((e) => {
+          console.warn('Restock check notice deferred:', e.message);
+        });
+      }
+    }
   }
 
   const updated = await prisma.product.update({

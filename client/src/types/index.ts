@@ -5,7 +5,9 @@ export interface Product {
   category: string;
   description: string;
   price: number;
+  costPrice?: number;
   originalPrice?: number;
+  imageUrl?: string;
   images: string[];
   availableColors: string[];
   sizes: string[];
@@ -30,6 +32,7 @@ export interface CartItem {
   quantity: number;
   size?: string;
   color?: string;
+  image?: string;
   images?: string[];
   category?: string;
   [key: string]: any;
@@ -89,6 +92,11 @@ export interface AuthContextType {
   makeAdmin: (userId: string) => Promise<boolean>;
   deleteUser: (userId: string) => Promise<boolean>;
   updateUserRole?: (userId: string, role: string) => Promise<boolean>;
+  loginWithAdminKey?: (key: string) => Promise<boolean>;
+  adminAddUser?: (userData: any) => Promise<any>;
+  adminUpdateUser?: (userId: string, userData: any) => Promise<any>;
+  adminDeleteUser?: (userId: string) => Promise<boolean>;
+  loadUsersList?: () => Promise<void>;
   setError: (err: string | null) => void;
 }
 
@@ -111,27 +119,115 @@ export interface ShippingAddressType {
   postalCode: string;
 }
 
+export interface OrderTrackingEventType {
+  id: string;
+  orderId: string;
+  status: string;
+  description: string;
+  courierName?: string | null;
+  trackingNumber?: string | null;
+  location?: string | null;
+  updatedBy?: string;
+  timestamp: string;
+}
+
 export interface OrderType {
   id: string;
+  orderId?: string;
   userId?: string;
   user?: {
     id?: string;
     realName?: string;
     email: string;
+    phone?: string;
   };
   paymentMethod: string;
   itemsPrice: number;
   deliveryFee: number;
   discountAmount?: number;
   totalPrice: number;
-  status: 'Pending' | 'Confirmed' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
+  status:
+    | 'Pending'
+    | 'Order Placed'
+    | 'Payment Confirmed'
+    | 'Confirmed'
+    | 'Processing'
+    | 'PreparingForShipment'
+    | 'Preparing for Shipment'
+    | 'Shipped'
+    | 'OutForDelivery'
+    | 'Out for Delivery'
+    | 'Delivered'
+    | 'Cancelled'
+    | 'DeliveryFailed'
+    | 'Delivery Failed'
+    | 'Returned'
+    | string;
   isPaid?: boolean;
   paidAt?: string;
   deliveredAt?: string;
+  shippedAt?: string;
+  courierName?: string;
+  trackingNumber?: string;
+  estimatedDelivery?: string;
+  internalNotes?: string;
+  trackingEvents?: OrderTrackingEventType[];
   createdAt: string;
   updatedAt?: string;
   orderItems: OrderItemType[];
   shippingAddress: ShippingAddressType;
+}
+
+export type DropStatus = 'Draft' | 'Scheduled' | 'Upcoming' | 'Live' | 'SoldOut' | 'Ended' | 'Cancelled';
+
+export interface DropProductType {
+  id: string;
+  dropId: string;
+  productId: string;
+  exclusiveStock: number;
+  dropPrice?: number | null;
+  product?: Product;
+}
+
+export interface DropType {
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  banner: string;
+  scheduledAt: string;
+  timezone: string;
+  status: DropStatus;
+  published: boolean;
+  createdAt: string;
+  updatedAt: string;
+  products: DropProductType[];
+}
+
+export interface StockNotificationType {
+  id: string;
+  userId?: string | null;
+  email: string;
+  productId: string;
+  size: string;
+  color?: string | null;
+  status: 'active' | 'notified' | 'unsubscribed';
+  createdAt: string;
+  notifiedAt?: string | null;
+  product?: {
+    id: string;
+    name: string;
+    slug: string;
+    imageUrl?: string;
+    price: number;
+  };
+}
+
+export interface RecentlyViewedItem {
+  id: string;
+  productId: string;
+  viewedAt: string;
+  product: Product;
 }
 
 export interface CustomerMessage {
@@ -158,3 +254,33 @@ export interface VisualModeContextType {
   loaderLabel: string;
 }
 
+export interface AnalyticsOverview {
+  totalRevenue: number;
+  grossSales: number;
+  netSales: number;
+  totalOrders: number;
+  totalCustomers: number;
+  averageOrderValue: number;
+  deliveredOrders: number;
+  pendingOrders: number;
+  cancelledOrders: number;
+  refundTotals: number;
+  lowStockCount: number;
+  repeatCustomerRate: number;
+  estimatedProfit: number;
+}
+
+export interface AnalyticsData {
+  overview: AnalyticsOverview;
+  charts: {
+    revenueByPeriod: { date: string; revenue: number; orders: number }[];
+    salesBySize: { size: string; count: number; revenue: number }[];
+    salesByColor: { color: string; count: number; revenue: number }[];
+    topProducts: { id: string; name: string; unitsSold: number; revenue: number }[];
+  };
+  inventoryInsights: {
+    lowStockProducts: any[];
+    outOfStockProducts: any[];
+    noSalesProducts: any[];
+  };
+}

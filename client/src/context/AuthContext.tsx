@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
 import * as authService from '../services/authService';
 import { User } from '../types';
+import { mergeGuestHistoryOnLogin } from '../services/recentlyViewedService';
 
 export const MASTER_ADMIN_PASSKEYS = ['March3@2211'];
 
@@ -121,6 +122,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         sessionStorage.removeItem('shexzToken');
         sessionStorage.removeItem('shexzUser');
       }
+      // Merge guest viewing history into account
+      mergeGuestHistoryOnLogin().catch((e) => console.warn('Guest history merge notice:', e));
     }
     return sessionUser;
   };

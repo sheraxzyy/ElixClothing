@@ -10,23 +10,25 @@ datasource db {
 }
 
 model User {
-  id        String         @id @default(cuid())
-  realName  String
-  username  String         @unique
-  email     String         @unique
-  password  String?
-  role      Role           @default(customer)
-  provider  Provider       @default(email)
-  avatar    String?
-  points    Int            @default(200)
-  isDemo    Boolean        @default(false)
-  phone     String?
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
-  addresses Address[]
-  orders    Order[]
-  reviews   Review[]
-  wishlist  WishlistItem[]
+  id                 String              @id @default(cuid())
+  realName           String
+  username           String              @unique
+  email              String              @unique
+  password           String?
+  role               Role                @default(customer)
+  provider           Provider            @default(email)
+  avatar             String?
+  points             Int                 @default(200)
+  isDemo             Boolean             @default(false)
+  phone              String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  addresses          Address[]
+  orders             Order[]
+  reviews            Review[]
+  wishlist           WishlistItem[]
+  stockNotifications StockNotification[]
+  recentlyViewed     RecentlyViewed[]
 
   @@index([email])
   @@index([username])
@@ -44,25 +46,29 @@ model Address {
 }
 
 model Product {
-  id           String         @id @default(cuid())
-  name         String
-  slug         String         @unique
-  description  String
-  imageUrl     String
-  price        Float
-  priority     Int            @default(0)
-  category     String         @default("Uncategorized")
-  isFeatured   Boolean        @default(false)
-  isBestSeller Boolean        @default(false)
-  rating       Float          @default(0)
-  numReviews   Int            @default(0)
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  orderItems   OrderItem[]
-  images       ProductImage[]
-  sizes        ProductSize[]
-  reviews      Review[]
-  wishlist     WishlistItem[]
+  id                 String              @id @default(cuid())
+  name               String
+  slug               String              @unique
+  description        String
+  imageUrl           String
+  price              Float
+  costPrice          Float?              @default(0)
+  priority           Int                 @default(0)
+  category           String              @default("Uncategorized")
+  isFeatured         Boolean             @default(false)
+  isBestSeller       Boolean             @default(false)
+  rating             Float               @default(0)
+  numReviews         Int                 @default(0)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  orderItems         OrderItem[]
+  images             ProductImage[]
+  sizes              ProductSize[]
+  reviews            Review[]
+  wishlist           WishlistItem[]
+  dropProducts       DropProduct[]
+  stockNotifications StockNotification[]
+  recentlyViewed     RecentlyViewed[]
 
   @@index([slug])
   @@index([priority])
@@ -112,22 +118,28 @@ model Discount {
 }
 
 model Order {
-  id              String           @id @default(cuid())
-  userId          String
-  paymentMethod   String           @default("Cash on Delivery")
-  itemsPrice      Float
-  deliveryFee     Float
-  discountAmount  Float            @default(0)
-  totalPrice      Float
-  status          OrderStatus      @default(Pending)
-  isPaid          Boolean          @default(false)
-  paidAt          DateTime?
-  deliveredAt     DateTime?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  orderItems      OrderItem[]
-  shippingAddress ShippingAddress?
+  id                String               @id @default(cuid())
+  userId            String
+  paymentMethod     String               @default("Cash on Delivery")
+  itemsPrice        Float
+  deliveryFee       Float
+  discountAmount    Float                @default(0)
+  totalPrice        Float
+  status            OrderStatus          @default(Pending)
+  isPaid            Boolean              @default(false)
+  paidAt            DateTime?
+  deliveredAt       DateTime?
+  shippedAt         DateTime?
+  courierName       String?
+  trackingNumber    String?
+  estimatedDelivery DateTime?
+  internalNotes     String?
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  user              User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderItems        OrderItem[]
+  shippingAddress   ShippingAddress?
+  trackingEvents    OrderTrackingEvent[]
 
   @@index([userId])
   @@index([status])
@@ -156,6 +168,84 @@ model ShippingAddress {
   city       String
   postalCode String
   order      Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model OrderTrackingEvent {
+  id             String      @id @default(cuid())
+  orderId        String
+  status         OrderStatus
+  description    String
+  courierName    String?
+  trackingNumber String?
+  location       String?
+  updatedBy      String      @default("System")
+  timestamp      DateTime    @default(now())
+  order          Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([timestamp])
+}
+
+model Drop {
+  id          String        @id @default(cuid())
+  title       String
+  slug        String        @unique
+  description String
+  banner      String
+  scheduledAt DateTime
+  timezone    String        @default("Asia/Colombo")
+  status      DropStatus    @default(Draft)
+  published   Boolean       @default(false)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  products    DropProduct[]
+
+  @@index([slug])
+  @@index([status])
+  @@index([scheduledAt])
+}
+
+model DropProduct {
+  id             String   @id @default(cuid())
+  dropId         String
+  productId      String
+  exclusiveStock Int      @default(0)
+  dropPrice      Float?
+  drop           Drop     @relation(fields: [dropId], references: [id], onDelete: Cascade)
+  product        Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([dropId, productId])
+  @@index([dropId])
+  @@index([productId])
+}
+
+model StockNotification {
+  id         String    @id @default(cuid())
+  userId     String?
+  email      String
+  productId  String
+  size       Size
+  color      String?
+  status     String    @default("active") // "active", "notified", "unsubscribed"
+  createdAt  DateTime  @default(now())
+  notifiedAt DateTime?
+  product    Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user       User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([productId, size, status])
+  @@index([email])
+}
+
+model RecentlyViewed {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  viewedAt  DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([userId, viewedAt])
 }
 
 model Review {
@@ -217,7 +307,21 @@ enum OrderStatus {
   Pending
   Confirmed
   Processing
+  PreparingForShipment
   Shipped
+  OutForDelivery
   Delivered
+  Cancelled
+  DeliveryFailed
+  Returned
+}
+
+enum DropStatus {
+  Draft
+  Scheduled
+  Upcoming
+  Live
+  SoldOut
+  Ended
   Cancelled
 }

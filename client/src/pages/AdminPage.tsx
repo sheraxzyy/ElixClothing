@@ -5,6 +5,9 @@ import { useToast } from '../context/ToastContext';
 import * as productService from '../services/productService';
 import * as orderService from '../services/orderService';
 import * as messageService from '../services/messageService';
+import { AdminAnalyticsView } from '../components/admin/AdminAnalyticsView';
+import { AdminDropsView } from '../components/admin/AdminDropsView';
+import { AdminStockNotificationsView } from '../components/admin/AdminStockNotificationsView';
 import { Product, User, OrderType, CustomerMessage } from '../types';
 import {
   Shield,
@@ -34,9 +37,14 @@ import {
   Truck,
   CheckCircle2,
   LayoutDashboard,
+  BarChart3,
+  Flame,
+  Bell,
+  MapPin,
+  Calendar,
 } from 'lucide-react';
 
-type AdminSection = 'overview' | 'orders' | 'messages' | 'products' | 'users';
+type AdminSection = 'overview' | 'analytics' | 'drops' | 'stock-notifications' | 'orders' | 'messages' | 'products' | 'users';
 
 const AdminPage: React.FC = () => {
   const {
@@ -76,6 +84,56 @@ const AdminPage: React.FC = () => {
   const [viewingOrder, setViewingOrder] = useState<OrderType | null>(null);
   const [copiedOrderId, setCopiedOrderId] = useState<boolean>(false);
   const [statusUpdating, setStatusUpdating] = useState<boolean>(false);
+
+  // Dedicated Order Tracking & Waybill state
+  const [trackingCourier, setTrackingCourier] = useState<string>('');
+  const [trackingCode, setTrackingCode] = useState<string>('');
+  const [trackingEstDate, setTrackingEstDate] = useState<string>('');
+  const [trackingMsg, setTrackingMsg] = useState<string>('');
+  const [trackingInternalNotes, setTrackingInternalNotes] = useState<string>('');
+  const [savingTracking, setSavingTracking] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (viewingOrder) {
+      setTrackingCourier(viewingOrder.courierName || '');
+      setTrackingCode(viewingOrder.trackingNumber || '');
+      setTrackingEstDate(viewingOrder.estimatedDelivery ? viewingOrder.estimatedDelivery.substring(0, 10) : '');
+      setTrackingInternalNotes(viewingOrder.internalNotes || '');
+      setTrackingMsg('');
+    }
+  }, [viewingOrder]);
+
+  const handleSaveTrackingDetails = async () => {
+    if (!viewingOrder) return;
+    setSavingTracking(true);
+    try {
+      const updated = await orderService.updateOrderTracking(viewingOrder.id, {
+        status: viewingOrder.status,
+        courierName: trackingCourier,
+        trackingNumber: trackingCode,
+        estimatedDelivery: trackingEstDate,
+        description: trackingMsg,
+        internalNotes: trackingInternalNotes,
+      });
+      if (updated) {
+        setViewingOrder((prev) => (prev ? { ...prev, ...updated } : updated));
+        setOrders((prev) => prev.map((o) => (o.id === viewingOrder.id ? { ...o, ...updated } : o)));
+        addToast({
+          title: 'Tracking Details Updated',
+          message: `Waybill and event trail saved for Order #${viewingOrder.id}.`,
+          type: 'success',
+        });
+      }
+    } catch {
+      addToast({
+        title: 'Error',
+        message: 'Failed to update order tracking information.',
+        type: 'error',
+      });
+    } finally {
+      setSavingTracking(false);
+    }
+  };
 
   const loadOrders = async () => {
     setOrdersLoading(true);
@@ -741,17 +799,30 @@ const AdminPage: React.FC = () => {
   const renderStatusBadge = (status: OrderType['status']) => {
     switch (status) {
       case 'Pending':
-        return <span className="order-status-badge status-pending">● Pending</span>;
+      case 'Order Placed':
+        return <span className="order-status-badge status-pending">● Order Placed</span>;
+      case 'Payment Confirmed':
       case 'Confirmed':
-        return <span className="order-status-badge status-confirmed">✓ Confirmed</span>;
+        return <span className="order-status-badge status-confirmed">✓ Payment Confirmed</span>;
       case 'Processing':
         return <span className="order-status-badge status-processing">⚙ Processing</span>;
+      case 'PreparingForShipment':
+      case 'Preparing for Shipment':
+        return <span className="order-status-badge status-processing">📦 Preparing for Shipment</span>;
       case 'Shipped':
         return <span className="order-status-badge status-shipped">🚚 Shipped</span>;
+      case 'OutForDelivery':
+      case 'Out for Delivery':
+        return <span className="order-status-badge status-shipped">🛵 Out for Delivery</span>;
       case 'Delivered':
         return <span className="order-status-badge status-delivered">★ Delivered</span>;
       case 'Cancelled':
         return <span className="order-status-badge status-cancelled">✕ Cancelled</span>;
+      case 'DeliveryFailed':
+      case 'Delivery Failed':
+        return <span className="order-status-badge status-cancelled">⚠ Delivery Failed</span>;
+      case 'Returned':
+        return <span className="order-status-badge status-cancelled">↩ Returned</span>;
       default:
         return <span className="order-status-badge">{status}</span>;
     }
@@ -920,6 +991,30 @@ const AdminPage: React.FC = () => {
             onClick={() => setAdminSection('overview')}
           >
             <LayoutDashboard size={16} /> Overview
+          </button>
+
+          <button
+            type="button"
+            className={`admin-nav-pill ${adminSection === 'analytics' ? 'active' : ''}`}
+            onClick={() => setAdminSection('analytics')}
+          >
+            <BarChart3 size={16} /> Analytics & Reports
+          </button>
+
+          <button
+            type="button"
+            className={`admin-nav-pill ${adminSection === 'drops' ? 'active' : ''}`}
+            onClick={() => setAdminSection('drops')}
+          >
+            <Flame size={16} /> ELIX Drops
+          </button>
+
+          <button
+            type="button"
+            className={`admin-nav-pill ${adminSection === 'stock-notifications' ? 'active' : ''}`}
+            onClick={() => setAdminSection('stock-notifications')}
+          >
+            <Bell size={16} /> Restock Alerts
           </button>
 
           <button
@@ -1783,6 +1878,33 @@ const AdminPage: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* ─────────────────────────────────────────────────────────────────────
+            SECTION: ADVANCED ANALYTICS
+           ───────────────────────────────────────────────────────────────────── */}
+        {adminSection === 'analytics' && (
+          <div className="animate-fade-in">
+            <AdminAnalyticsView />
+          </div>
+        )}
+
+        {/* ─────────────────────────────────────────────────────────────────────
+            SECTION: ELIX DROP ENGINE
+           ───────────────────────────────────────────────────────────────────── */}
+        {adminSection === 'drops' && (
+          <div className="animate-fade-in">
+            <AdminDropsView />
+          </div>
+        )}
+
+        {/* ─────────────────────────────────────────────────────────────────────
+            SECTION: RESTOCK WAITLIST NOTIFICATIONS
+           ───────────────────────────────────────────────────────────────────── */}
+        {adminSection === 'stock-notifications' && (
+          <div className="animate-fade-in">
+            <AdminStockNotificationsView />
+          </div>
+        )}
       </div>
 
       {/* ─────────────────────────────────────────────────────────────────────
@@ -1849,12 +1971,16 @@ const AdminPage: React.FC = () => {
                   className="form-control"
                   style={{ width: 'auto', padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}
                 >
-                  <option value="Pending">Pending</option>
-                  <option value="Confirmed">Confirmed</option>
+                  <option value="Pending">Order Placed (Pending)</option>
+                  <option value="Confirmed">Payment Confirmed</option>
                   <option value="Processing">Processing</option>
+                  <option value="Preparing for Shipment">Preparing for Shipment</option>
                   <option value="Shipped">Shipped</option>
+                  <option value="Out for Delivery">Out for Delivery</option>
                   <option value="Delivered">Delivered</option>
                   <option value="Cancelled">Cancelled</option>
+                  <option value="Delivery Failed">Delivery Failed</option>
+                  <option value="Returned">Returned</option>
                 </select>
               </div>
             </div>
@@ -1941,6 +2067,120 @@ const AdminPage: React.FC = () => {
                   </div>
                 ))}
               </div>
+            </div>
+
+            {/* Live Courier & Dispatch Tracking Controls */}
+            <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: 'var(--radius-md)', padding: '1.25rem', marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                <h4 style={{ fontSize: '0.85rem', color: 'var(--accent-amber)', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Truck size={14} /> Courier Dispatch & Live Tracking Console
+                </h4>
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)' }}>
+                  CUSTOMER AUDIT TRAIL
+                </span>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
+                    Courier Partner
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. PromptX, Domex, DHL, Pronto"
+                    value={trackingCourier}
+                    onChange={(e) => setTrackingCourier(e.target.value)}
+                    className="form-control"
+                    style={{ fontSize: '0.82rem', padding: '0.45rem 0.65rem' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
+                    Waybill / Tracking No.
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. PR-984210"
+                    value={trackingCode}
+                    onChange={(e) => setTrackingCode(e.target.value)}
+                    className="form-control"
+                    style={{ fontSize: '0.82rem', padding: '0.45rem 0.65rem' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
+                    Estimated Delivery
+                  </label>
+                  <input
+                    type="date"
+                    value={trackingEstDate}
+                    onChange={(e) => setTrackingEstDate(e.target.value)}
+                    className="form-control"
+                    style={{ fontSize: '0.82rem', padding: '0.45rem 0.65rem' }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '0.75rem' }}>
+                <label style={{ display: 'block', fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
+                  Customer-Visible Tracking Update Message
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Handed over to courier hub in Colombo 03"
+                  value={trackingMsg}
+                  onChange={(e) => setTrackingMsg(e.target.value)}
+                  className="form-control"
+                  style={{ fontSize: '0.82rem', padding: '0.45rem 0.65rem' }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
+                  Internal Administrative Notes (Private)
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Verified with driver; package in protective sleeve"
+                  value={trackingInternalNotes}
+                  onChange={(e) => setTrackingInternalNotes(e.target.value)}
+                  className="form-control"
+                  style={{ fontSize: '0.82rem', padding: '0.45rem 0.65rem' }}
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={handleSaveTrackingDetails}
+                disabled={savingTracking}
+                className="btn btn-secondary btn-sm luxury-hover"
+                style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+              >
+                {savingTracking ? <RefreshCw size={14} className="animate-spin" /> : <CheckCircle2 size={14} color="#34d399" />}
+                Save Waybill & Dispatch Audit Update
+              </button>
+
+              {/* Event History Trail */}
+              {viewingOrder.trackingEvents && viewingOrder.trackingEvents.length > 0 && (
+                <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(255, 255, 255, 0.06)', paddingTop: '0.75rem' }}>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '0.5rem' }}>
+                    Audit Log History ({viewingOrder.trackingEvents.length})
+                  </span>
+                  <div style={{ display: 'grid', gap: '0.4rem', maxHeight: '140px', overflowY: 'auto' }}>
+                    {viewingOrder.trackingEvents.map((evt) => (
+                      <div key={evt.id} style={{ fontSize: '0.75rem', background: 'rgba(0,0,0,0.3)', padding: '0.4rem 0.6rem', borderRadius: '4px', borderLeft: '2px solid var(--accent-amber)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', color: '#fff' }}>
+                          <strong>{evt.status}</strong>
+                          <span style={{ color: 'var(--text-dim)', fontSize: '0.7rem' }}>
+                            {new Date(evt.timestamp).toLocaleString()}
+                          </span>
+                        </div>
+                        <div style={{ color: 'var(--text-secondary)' }}>{evt.description}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Cost Breakdown */}

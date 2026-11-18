@@ -5,6 +5,7 @@ import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
 import { Product } from '../types';
 import useSound from '../hooks/useSound';
+import { RecentlyViewedSection } from '../components/RecentlyViewedSection';
 import { Search, Heart, ShoppingBag, Sparkles, Flame, Star, RefreshCw, AlertTriangle } from 'lucide-react';
 
 const ShopPage: React.FC = () => {
@@ -334,6 +335,9 @@ const ShopPage: React.FC = () => {
           )}
         </div>
       </section>
+
+      {/* Recently Viewed Section */}
+      <RecentlyViewedSection />
     </main>
   );
 };

@@ -3,8 +3,12 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
 import { useVisualMode } from '../context/VisualModeContext';
+import { useAuth } from '../context/AuthContext';
 import useSound from '../hooks/useSound';
 import { formatPrice, getProductBySlug } from '../services/productService';
+import { recordRecentlyViewed } from '../services/recentlyViewedService';
+import { RecentlyViewedSection } from '../components/RecentlyViewedSection';
+import { BackInStockModal } from '../components/BackInStockModal';
 import { Product } from '../types';
 import {
   Ruler,
@@ -26,6 +30,7 @@ import {
   Flame,
   AlertCircle,
   Share2,
+  Bell,
 } from 'lucide-react';
 
 // Color map for visual color swatches
@@ -46,6 +51,7 @@ const ProductPage: React.FC = () => {
   const { addToCart } = useCart();
   const { addToast } = useToast();
   const { isUltra } = useVisualMode();
+  const { user } = useAuth();
   const { playClick, playAddToCart, playSuccess } = useSound();
 
   const [product, setProduct] = useState<Product | null>(null);
@@ -66,6 +72,7 @@ const ProductPage: React.FC = () => {
 
   // Modal & Tabs
   const [sizeGuideOpen, setSizeGuideOpen] = useState<boolean>(false);
+  const [stockModalOpen, setStockModalOpen] = useState<boolean>(false);
   const [sizeUnit, setSizeUnit] = useState<'inches' | 'cm'>('inches');
   const [activeTab, setActiveTab] = useState<'specs' | 'fabric' | 'shipping' | 'care'>('specs');
   const [addedAnimation, setAddedAnimation] = useState<boolean>(false);
@@ -90,6 +97,9 @@ const ProductPage: React.FC = () => {
           if (data.availableColors && data.availableColors.length > 0) {
             setSelectedColor(data.availableColors[0]);
           }
+          if (data.id) {
+            recordRecentlyViewed(data.id, !!user).catch(() => {});
+          }
         } else {
           setError('Product not found.');
         }
@@ -102,7 +112,7 @@ const ProductPage: React.FC = () => {
     };
     loadProduct();
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [id]);
+  }, [id, user]);
 
   // Handle sticky mobile bar on scroll
   useEffect(() => {
@@ -596,32 +606,74 @@ const ProductPage: React.FC = () => {
 
               {/* Action Buttons Group */}
               <div ref={actionsRef} className={`product-cta-group ${isUltra ? 'ultra-cta-group' : ''}`}>
-                <button
-                  type="button"
-                  className={`btn btn-glow btn-lg btn-add-bag luxury-hover ${addedAnimation ? 'btn-success-state' : ''} ${isUltra ? 'ultra-3d-btn ultra-add-bag-btn' : ''}`}
-                  onClick={handleAddToCart}
-                >
-                  {isUltra && <span className="ultra-btn-shimmer-sweep" />}
-                  {addedAnimation ? (
-                    <>
-                      <Check size={20} className="cta-icon-animate" /> Added to Your Bag!
-                    </>
-                  ) : (
-                    <>
-                      <ShoppingBag size={20} /> Add to Bag • {formatPrice(product.price * quantity)}
-                    </>
-                  )}
-                  {isUltra && addedAnimation && <span className="ultra-burst-ring" />}
-                </button>
+                {(() => {
+                  const selectedSizeObj = product.sizes?.find((s: any) =>
+                    typeof s === 'string' ? s === selectedSize : s.size === selectedSize
+                  );
+                  const sizeStock =
+                    typeof selectedSizeObj === 'object' && selectedSizeObj !== null
+                      ? (selectedSizeObj as any).stock
+                      : product.stockQuantity;
+                  const isOutOfStock = product.inStock === false || (sizeStock !== undefined && sizeStock <= 0);
 
-                <button
-                  type="button"
-                  className={`btn btn-secondary btn-lg btn-buy-now luxury-hover ${isUltra ? 'ultra-3d-btn ultra-buy-btn' : ''}`}
-                  onClick={handleBuyNow}
-                >
-                  {isUltra && <span className="ultra-btn-shimmer-sweep" />}
-                  <Zap size={20} /> Buy Now — Instant Checkout
-                </button>
+                  if (isOutOfStock) {
+                    return (
+                      <div className="flex flex-col gap-3 w-full">
+                        <div className="p-3 bg-red-950/40 border border-red-500/40 rounded-xl text-red-400 text-xs font-mono text-center">
+                          Size {selectedSize} is currently out of stock.
+                        </div>
+                        <button
+                          type="button"
+                          className="btn btn-secondary btn-lg luxury-hover flex items-center justify-center gap-2 border border-red-500/60 text-white bg-red-950/60 hover:bg-red-900/60 w-full font-bold uppercase tracking-wider"
+                          onClick={() => setStockModalOpen(true)}
+                        >
+                          <Bell size={18} className="text-red-400 animate-pulse" /> NOTIFY ME WHEN AVAILABLE
+                        </button>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <>
+                      <button
+                        type="button"
+                        className={`btn btn-glow btn-lg btn-add-bag luxury-hover ${addedAnimation ? 'btn-success-state' : ''} ${isUltra ? 'ultra-3d-btn ultra-add-bag-btn' : ''}`}
+                        onClick={handleAddToCart}
+                      >
+                        {isUltra && <span className="ultra-btn-shimmer-sweep" />}
+                        {addedAnimation ? (
+                          <>
+                            <Check size={20} className="cta-icon-animate" /> Added to Your Bag!
+                          </>
+                        ) : (
+                          <>
+                            <ShoppingBag size={20} /> Add to Bag • {formatPrice(product.price * quantity)}
+                          </>
+                        )}
+                        {isUltra && addedAnimation && <span className="ultra-burst-ring" />}
+                      </button>
+
+                      <button
+                        type="button"
+                        className={`btn btn-secondary btn-lg btn-buy-now luxury-hover ${isUltra ? 'ultra-3d-btn ultra-buy-btn' : ''}`}
+                        onClick={handleBuyNow}
+                      >
+                        {isUltra && <span className="ultra-btn-shimmer-sweep" />}
+                        <Zap size={20} /> Buy Now — Instant Checkout
+                      </button>
+
+                      <div className="text-center pt-1">
+                        <button
+                          type="button"
+                          onClick={() => setStockModalOpen(true)}
+                          className="text-[11px] text-neutral-400 hover:text-white underline underline-offset-4 font-mono transition"
+                        >
+                          Want an alert if another size or restock drops? Join waitlist
+                        </button>
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
 
               {/* Comprehensive Accordion Tabs */}
@@ -753,6 +805,23 @@ const ProductPage: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* Recently Viewed Products */}
+      <RecentlyViewedSection currentProductId={product.id} />
+
+      {/* Back in Stock Waitlist Modal */}
+      <BackInStockModal
+        isOpen={stockModalOpen}
+        onClose={() => setStockModalOpen(false)}
+        product={{
+          id: product.id,
+          name: product.name,
+          imageUrl: product.imageUrl,
+          price: product.price,
+        }}
+        selectedSize={selectedSize}
+        selectedColor={selectedColor}
+      />
 
       {/* Sticky Mobile Add to Bag Bar */}
       {showStickyBar && (

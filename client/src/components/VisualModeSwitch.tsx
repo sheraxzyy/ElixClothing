@@ -18,13 +18,13 @@ export const VisualModeSwitch: React.FC<VisualModeSwitchProps> = ({ variant = 'n
     setMode(newMode);
     if (newMode === 'ultra') {
       addToast({
-        title: 'Ultra Graphics Activated ✨',
+        title: 'ELIX EXPERIENCE MODE Activated ✨',
         message: 'Cinematic page transitions, 3D buttons, dynamic lighting & streetwear effects enabled.',
         type: 'success',
       });
     } else {
       addToast({
-        title: 'Normal Mode Restored',
+        title: 'NORMAL MODE Restored',
         message: 'Clean, lightweight professional e-commerce interface active.',
         type: 'info',
       });
@@ -52,9 +52,9 @@ export const VisualModeSwitch: React.FC<VisualModeSwitchProps> = ({ variant = 'n
             <span className={`pill-status-dot ${isUltra ? 'dot-ultra' : 'dot-normal'}`} />
           </div>
           <div className="visual-pill-text-wrap">
-            <span className="visual-pill-label">Visual Experience</span>
+            <span className="visual-pill-label">Visual Mode</span>
             <span className="visual-pill-val">
-              {isUltra ? 'Ultra Graphics' : 'Normal'}
+              {isUltra ? 'ELIX EXPERIENCE' : 'NORMAL MODE'}
             </span>
           </div>
           <div className="visual-pill-icon-box">

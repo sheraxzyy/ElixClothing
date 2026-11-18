@@ -19,6 +19,10 @@ import orderRoutes from './routes/orderRoutes.js';
 import discountRoutes from './routes/discountRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import messageRoutes from './routes/messageRoutes.js';
+import dropRoutes from './routes/dropRoutes.js';
+import stockNotificationRoutes from './routes/stockNotificationRoutes.js';
+import recentlyViewedRoutes from './routes/recentlyViewedRoutes.js';
+import analyticsRoutes from './routes/analyticsRoutes.js';
 
 const app = express();
 
@@ -87,6 +91,10 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/discounts', discountRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/api/drops', dropRoutes);
+app.use('/api/stock-notifications', stockNotificationRoutes);
+app.use('/api/recently-viewed', recentlyViewedRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // Centralized error handler with specific PostgreSQL / Prisma error translations
 app.use((err, _req, res, _next) => {

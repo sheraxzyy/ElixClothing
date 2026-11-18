@@ -258,6 +258,88 @@ export const updateOrderStatus = async (
   return updatedOrder;
 };
 
+export const getOrderTracking = async (orderId: string): Promise<any> => {
+  try {
+    const res = await api.get(`/orders/${orderId}/tracking`);
+    return res.data;
+  } catch (err) {
+    const orders = getStoredOrders();
+    const found = orders.find((o) => o.id === orderId);
+    if (found) {
+      return {
+        id: found.id,
+        orderId: found.id,
+        status: found.status,
+        totalPrice: found.totalPrice,
+        itemsPrice: found.itemsPrice,
+        deliveryFee: found.deliveryFee,
+        discountAmount: found.discountAmount,
+        paymentMethod: found.paymentMethod,
+        isPaid: found.isPaid,
+        user: found.user,
+        courierName: found.courierName || 'ELIX Express Dispatch',
+        trackingNumber: found.trackingNumber || `ELX-TRK-${found.id.replace(/[^0-9]/g, '')}`,
+        estimatedDelivery: found.estimatedDelivery || new Date(Date.now() + 86400000 * 3).toISOString(),
+        shippingAddress: found.shippingAddress,
+        orderItems: found.orderItems,
+        createdAt: found.createdAt,
+        trackingEvents: found.trackingEvents || [
+          {
+            id: 'evt_1',
+            orderId: found.id,
+            status: found.status,
+            description: `Order is currently in ${found.status} status.`,
+            timestamp: found.createdAt,
+            updatedBy: 'System',
+          },
+        ],
+      };
+    }
+    throw err;
+  }
+};
+
+export const updateOrderTracking = async (
+  orderId: string,
+  trackingPayload: {
+    status?: string;
+    description?: string;
+    courierName?: string;
+    trackingNumber?: string;
+    estimatedDelivery?: string;
+    internalNotes?: string;
+    location?: string;
+  }
+): Promise<any> => {
+  try {
+    const res = await api.patch(`/orders/${orderId}/tracking`, trackingPayload);
+    if (res.data?.order) {
+      const current = getStoredOrders();
+      const updated = current.map((o) => (o.id === orderId ? { ...o, ...res.data.order } : o));
+      saveStoredOrders(updated);
+      return res.data.order;
+    }
+    return res.data;
+  } catch (err) {
+    console.warn('API tracking update fallback:', err);
+    const current = getStoredOrders();
+    let updatedOrder: OrderType | null = null;
+    const updated = current.map((o) => {
+      if (o.id === orderId) {
+        updatedOrder = {
+          ...o,
+          ...trackingPayload,
+          updatedAt: new Date().toISOString(),
+        };
+        return updatedOrder;
+      }
+      return o;
+    });
+    saveStoredOrders(updated);
+    return updatedOrder;
+  }
+};
+
 export const deleteOrder = async (orderId: string): Promise<boolean> => {
   const current = getStoredOrders();
   const updated = current.filter((o) => o.id !== orderId);

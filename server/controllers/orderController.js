@@ -1,13 +1,9 @@
 import asyncHandler from 'express-async-handler';
 import prisma from '../config/db.js';
+import orderTrackingService from '../services/OrderTrackingService.js';
+import emailService from '../services/EmailNotificationService.js';
+import dropService from '../services/DropService.js';
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  POST /api/orders   (protected — logged-in customers)
-//  Body: { orderItems, shippingAddress, discountCode? }
-//
-//  orderItems: [{ productId, name, image, price, quantity, size?, color? }]
-//  shippingAddress: { fullName, phone, street, city, postalCode }
-// ─────────────────────────────────────────────────────────────────────────────
 export const createOrder = asyncHandler(async (req, res) => {
   const { orderItems, shippingAddress, discountCode, paymentMethod } = req.body;
 
@@ -16,7 +12,6 @@ export const createOrder = asyncHandler(async (req, res) => {
     throw new Error('Order items and shipping address are required.');
   }
 
-  // ── resolve user (authenticated or guest customer) ────────────────────────
   let userId = req.user?.id;
   if (!userId) {
     const customerEmail = (
@@ -74,12 +69,12 @@ export const createOrder = asyncHandler(async (req, res) => {
   }
 
   const itemsPrice = orderItems.reduce(
-    (sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 1), 0
+    (sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 1),
+    0
   );
   const deliveryFee = Number(req.body.deliveryFee) >= 0 ? Number(req.body.deliveryFee) : 250;
-  let   discountAmount = 0;
+  let discountAmount = 0;
 
-  // ── validate & apply discount code ────────────────────────────────────────
   if (discountCode) {
     const discount = await prisma.discount.findUnique({
       where: { code: discountCode.toUpperCase() },
@@ -102,13 +97,12 @@ export const createOrder = asyncHandler(async (req, res) => {
 
     await prisma.discount.update({
       where: { id: discount.id },
-      data:  { usedCount: { increment: 1 } },
+      data: { usedCount: { increment: 1 } },
     });
   }
 
   const totalPrice = Math.max(0, itemsPrice + deliveryFee - discountAmount);
 
-  // ── resolve valid product IDs & clean sizes for OrderItem relations ───────
   const VALID_SIZES = ['S', 'M', 'L', 'XL', 'XXL'];
   const allDbProducts = await prisma.product.findMany({
     select: { id: true, name: true, slug: true },
@@ -117,7 +111,6 @@ export const createOrder = asyncHandler(async (req, res) => {
 
   const processedItems = orderItems.map((item) => {
     let targetProductId = item.productId || item.id;
-    // If composite key like "cmv...-L-Black", strip suffixes
     if (typeof targetProductId === 'string' && targetProductId.includes('-')) {
       const parts = targetProductId.split('-');
       const matched = allDbProducts.find((p) => p.id === parts[0]);
@@ -126,7 +119,6 @@ export const createOrder = asyncHandler(async (req, res) => {
       }
     }
 
-    // Verify existence in DB
     let validProd = allDbProducts.find((p) => p.id === targetProductId);
     if (!validProd && item.slug) {
       validProd = allDbProducts.find((p) => p.slug === item.slug);
@@ -143,16 +135,25 @@ export const createOrder = asyncHandler(async (req, res) => {
 
     return {
       productId: validProd ? validProd.id : targetProductId,
-      name:      item.name || validProd?.name || 'ELIX Apparel',
-      image:     item.image || '/images/products/remorse-tee.jpg',
-      price:     Number(item.price) || 0,
-      quantity:  Math.max(1, Math.round(Number(item.quantity) || 1)),
+      name: item.name || validProd?.name || 'ELIX Apparel',
+      image: item.image || '/images/products/remorse-tee.jpg',
+      price: Number(item.price) || 0,
+      quantity: Math.max(1, Math.round(Number(item.quantity) || 1)),
       size,
-      color:     item.color || null,
+      color: item.color || null,
     };
   });
 
-  // ── create order with nested items + shipping address ─────────────────────
+  for (const item of processedItems) {
+    if (item.size) {
+      try {
+        await dropService.decrementVariantStock(item.productId, item.size, item.quantity);
+      } catch (stockErr) {
+        console.warn(`Stock decrement skipped for ${item.name} (${item.size}):`, stockErr.message);
+      }
+    }
+  }
+
   const order = await prisma.order.create({
     data: {
       userId,
@@ -162,16 +163,25 @@ export const createOrder = asyncHandler(async (req, res) => {
       discountAmount,
       totalPrice,
       status: 'Pending',
+      isPaid: paymentMethod !== 'Cash on Delivery',
+      paidAt: paymentMethod !== 'Cash on Delivery' ? new Date() : null,
       orderItems: {
         create: processedItems,
       },
       shippingAddress: {
         create: {
-          fullName:   shippingAddress.fullName || 'Customer',
-          phone:      shippingAddress.phone || '',
-          street:     shippingAddress.street || '',
-          city:       shippingAddress.city || 'Colombo',
+          fullName: shippingAddress.fullName || 'Customer',
+          phone: shippingAddress.phone || '',
+          street: shippingAddress.street || '',
+          city: shippingAddress.city || 'Colombo',
           postalCode: shippingAddress.postalCode || '',
+        },
+      },
+      trackingEvents: {
+        create: {
+          status: 'Pending',
+          description: 'Order placed successfully. Awaiting payment and processing.',
+          updatedBy: 'System Automated Checkout',
         },
       },
     },
@@ -179,17 +189,19 @@ export const createOrder = asyncHandler(async (req, res) => {
       user: {
         select: { id: true, realName: true, email: true, phone: true },
       },
-      orderItems:      true,
+      orderItems: true,
       shippingAddress: true,
+      trackingEvents: true,
     },
+  });
+
+  emailService.sendOrderConfirmation(order).catch((err) => {
+    console.warn('Background order confirmation email error:', err.message);
   });
 
   res.status(201).json(order);
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  GET /api/orders   (protected — own orders for customers, all for admin)
-// ─────────────────────────────────────────────────────────────────────────────
 export const getOrders = asyncHandler(async (req, res) => {
   const adminEmail = (process.env.ADMIN_EMAIL || 'admin@elix.lk').toLowerCase();
   const ownerEmail = (process.env.OWNER_EMAIL || 'sheranadeesha39@gmail.com').toLowerCase();
@@ -204,9 +216,12 @@ export const getOrders = asyncHandler(async (req, res) => {
   const orders = await prisma.order.findMany({
     where: isAdmin ? {} : { userId: req.user.id },
     include: {
-      user:            { select: { id: true, realName: true, email: true, phone: true } },
-      orderItems:      true,
+      user: { select: { id: true, realName: true, email: true, phone: true } },
+      orderItems: true,
       shippingAddress: true,
+      trackingEvents: {
+        orderBy: { timestamp: 'desc' },
+      },
     },
     orderBy: { createdAt: 'desc' },
   });
@@ -214,60 +229,73 @@ export const getOrders = asyncHandler(async (req, res) => {
   res.json(orders);
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  GET /api/orders/:id   (protected)
-// ─────────────────────────────────────────────────────────────────────────────
-export const getOrderById = asyncHandler(async (req, res) => {
-  const order = await prisma.order.findUnique({
-    where: { id: req.params.id },
+export const getMyOrders = asyncHandler(async (req, res) => {
+  const orders = await prisma.order.findMany({
+    where: { userId: req.user.id },
     include: {
-      user:            { select: { id: true, realName: true, email: true } },
-      orderItems:      true,
+      orderItems: true,
       shippingAddress: true,
+      trackingEvents: {
+        orderBy: { timestamp: 'desc' },
+      },
     },
+    orderBy: { createdAt: 'desc' },
   });
 
-  if (!order) {
-    res.status(404);
-    throw new Error('Order not found.');
-  }
+  res.json(orders);
+});
 
-  const isAdmin =
-    req.user.role === 'admin' || req.user.role === 'owner';
-
-  if (!isAdmin && order.userId !== req.user.id) {
-    res.status(403);
-    throw new Error('Not authorized to view this order.');
-  }
-
+export const getOrderById = asyncHandler(async (req, res) => {
+  const order = await orderTrackingService.getOrderTracking(req.params.id, req.user);
   res.json(order);
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  PUT /api/orders/:id/status   (admin only)
-//  Body: { status }
-// ─────────────────────────────────────────────────────────────────────────────
-export const updateOrderStatus = asyncHandler(async (req, res) => {
-  const { status } = req.body;
-  const { id }     = req.params;
-
-  const order = await prisma.order.findUnique({ where: { id } });
-  if (!order) {
-    res.status(404);
-    throw new Error('Order not found.');
-  }
-
-  const data = { status };
-  if (status === 'Delivered') data.deliveredAt = new Date();
-
-  const updated = await prisma.order.update({
-    where: { id },
-    data,
-    include: {
-      orderItems:      true,
-      shippingAddress: true,
-    },
+export const getOrderTracking = asyncHandler(async (req, res) => {
+  const order = await orderTrackingService.getOrderTracking(req.params.id, req.user);
+  res.json({
+    id: order.id,
+    orderId: order.id,
+    status: order.status,
+    totalPrice: order.totalPrice,
+    itemsPrice: order.itemsPrice,
+    deliveryFee: order.deliveryFee,
+    discountAmount: order.discountAmount,
+    paymentMethod: order.paymentMethod,
+    isPaid: order.isPaid,
+    user: order.user,
+    courierName: order.courierName,
+    trackingNumber: order.trackingNumber,
+    estimatedDelivery: order.estimatedDelivery,
+    shippedAt: order.shippedAt,
+    deliveredAt: order.deliveredAt,
+    createdAt: order.createdAt,
+    shippingAddress: order.shippingAddress,
+    orderItems: order.orderItems,
+    trackingEvents: order.trackingEvents,
   });
+});
 
-  res.json(updated);
+export const updateOrderTracking = asyncHandler(async (req, res) => {
+  const result = await orderTrackingService.updateTracking(req.params.id, req.body, req.user);
+  res.json(result);
+});
+
+export const updateOrderStatus = asyncHandler(async (req, res) => {
+  const { status, description } = req.body;
+  const result = await orderTrackingService.updateTracking(
+    req.params.id,
+    {
+      status,
+      description: description || `Order status marked as ${status}.`,
+    },
+    req.user
+  );
+  res.json(result.order);
+});
+
+export const deleteOrder = asyncHandler(async (req, res) => {
+  await prisma.order.delete({
+    where: { id: req.params.id },
+  });
+  res.json({ message: 'Order removed successfully' });
 });

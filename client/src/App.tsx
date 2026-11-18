@@ -12,6 +12,8 @@ import RegisterPage from './pages/RegisterPage';
 import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
 import AdminPage from './pages/AdminPage';
+import { DropPage } from './pages/DropPage';
+import { OrderTrackingPage } from './pages/OrderTrackingPage';
 
 const App: React.FC = () => {
   return (
@@ -20,6 +22,12 @@ const App: React.FC = () => {
         <Route index element={<HomePage />} />
         <Route path="shop" element={<ShopPage />} />
         <Route path="product/:id" element={<ProductPage />} />
+        <Route path="drops" element={<DropPage />} />
+        <Route path="drop" element={<DropPage />} />
+        <Route path="drop/:slugOrId" element={<DropPage />} />
+        <Route path="track-order" element={<OrderTrackingPage />} />
+        <Route path="track" element={<OrderTrackingPage />} />
+        <Route path="order-tracking" element={<OrderTrackingPage />} />
         <Route path="about" element={<AboutPage />} />
         <Route path="contact" element={<ContactPage />} />
         <Route path="size-guide" element={<SizeGuidePage />} />
